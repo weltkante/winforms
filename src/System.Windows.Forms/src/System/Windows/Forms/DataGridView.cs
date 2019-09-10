@@ -4407,7 +4407,7 @@ namespace System.Windows.Forms
             }
             set
             {
-                if (ShowCellErrors != value)
+                if (dataGridViewState2[DATAGRIDVIEWSTATE2_showCellErrors] != value)
                 {
                     dataGridViewState2[DATAGRIDVIEWSTATE2_showCellErrors] = value;
 
@@ -4461,7 +4461,7 @@ namespace System.Windows.Forms
             }
             set
             {
-                if (ShowCellToolTips != value)
+                if (dataGridViewState2[DATAGRIDVIEWSTATE2_showCellToolTips] != value)
                 {
                     dataGridViewState2[DATAGRIDVIEWSTATE2_showCellToolTips] = value;
 

@@ -20,6 +20,7 @@
     "Microsoft.NET.Sdk.IL": "3.1.0-preview1.19459.7"
   },
   "native-tools": {
-    "dotnet-api-docs_netcoreapp3.0": "0.0.0.1"
+    "dotnet-api-docs_netcoreapp3.0": "0.0.0.1",
+    "net-framework-48-ref-assemblies": "0.0.0.1"
   }
 }

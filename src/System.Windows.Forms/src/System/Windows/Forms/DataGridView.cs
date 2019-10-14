@@ -4414,25 +4414,29 @@ namespace System.Windows.Forms
                     // Put this into OnShowCellErrorsChanged if created.
                     if (IsHandleCreated && !DesignMode)
                     {
-                        if (value && !ShowRowErrors && !ShowCellToolTips)
+                        if (!ShowRowErrors && !ShowCellToolTips)
                         {
-                            // the tool tip hasn't yet been activated
-                            // activate it now
-                            toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
+                            if (value)
+                            {
+                                // the tool tip hasn't yet been activated
+                                // activate it now
+                                toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
+                            }
+                            else
+                            {
+                                // there is no reason to keep the tool tip activated
+                                // deactivate it
+                                toolTipCaption = string.Empty;
+                                toolTipControl.Activate(false /*activate*/);
+                            }
                         }
-
-                        if (!value && !ShowRowErrors && !ShowCellToolTips)
+                        else
                         {
-                            // there is no reason to keep the tool tip activated
-                            // deactivate it
-                            toolTipCaption = string.Empty;
-                            toolTipControl.Activate(false /*activate*/);
-                        }
-
-                        if (!value && (ShowRowErrors || ShowCellToolTips))
-                        {
-                            // reset the tool tip
-                            toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
+                            if (!value)
+                            {
+                                // reset the tool tip
+                                toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
+                            }
                         }
 
                         // Some autosizing may have to be applied since the potential presence of error icons influences the preferred sizes.
@@ -4467,29 +4471,33 @@ namespace System.Windows.Forms
 
                     if (IsHandleCreated && !DesignMode)
                     {
-                        if (value && !ShowRowErrors && !ShowCellErrors)
+                        if (!ShowRowErrors && !ShowCellErrors)
                         {
-                            // the tool tip hasn't yet been activated
-                            // activate it now
-                            toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption) /*activate*/);
+                            if (value)
+                            {
+                                // the tool tip hasn't yet been activated
+                                // activate it now
+                                toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption) /*activate*/);
+                            }
+                            else
+                            {
+                                // there is no reason to keep the tool tip activated
+                                // deactivate it
+                                toolTipCaption = string.Empty;
+                                toolTipControl.Activate(false /*activate*/);
+                            }
                         }
-
-                        if (!value && !ShowRowErrors && !ShowCellErrors)
+                        else
                         {
-                            // there is no reason to keep the tool tip activated
-                            // deactivate it
-                            toolTipCaption = string.Empty;
-                            toolTipControl.Activate(false /*activate*/);
-                        }
+                            if (!value)
+                            {
+                                bool activate = !string.IsNullOrEmpty(toolTipCaption);
+                                Point mouseCoord = System.Windows.Forms.Control.MousePosition;
+                                activate &= ClientRectangle.Contains(PointToClient(mouseCoord));
 
-                        if (!value && (ShowRowErrors || ShowCellErrors))
-                        {
-                            bool activate = !string.IsNullOrEmpty(toolTipCaption);
-                            Point mouseCoord = System.Windows.Forms.Control.MousePosition;
-                            activate &= ClientRectangle.Contains(PointToClient(mouseCoord));
-
-                            // reset the tool tip
-                            toolTipControl.Activate(activate);
+                                // reset the tool tip
+                                toolTipControl.Activate(activate);
+                            }
                         }
                     }
 

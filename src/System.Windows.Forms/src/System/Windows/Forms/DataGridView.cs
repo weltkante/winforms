@@ -4418,13 +4418,13 @@ namespace System.Windows.Forms
                         {
                             if (value)
                             {
-                                // the tool tip hasn't yet been activated
+                                // The tool tip hasn't yet been activated
                                 // activate it now
                                 toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
                             }
                             else
                             {
-                                // there is no reason to keep the tool tip activated
+                                // There is no reason to keep the tool tip activated
                                 // deactivate it
                                 toolTipCaption = string.Empty;
                                 toolTipControl.Activate(false /*activate*/);
@@ -4434,7 +4434,7 @@ namespace System.Windows.Forms
                         {
                             if (!value)
                             {
-                                // reset the tool tip
+                                // Reset the tool tip
                                 toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption));
                             }
                         }
@@ -4475,13 +4475,13 @@ namespace System.Windows.Forms
                         {
                             if (value)
                             {
-                                // the tool tip hasn't yet been activated
+                                // The tool tip hasn't yet been activated
                                 // activate it now
                                 toolTipControl.Activate(!string.IsNullOrEmpty(toolTipCaption) /*activate*/);
                             }
                             else
                             {
-                                // there is no reason to keep the tool tip activated
+                                // There is no reason to keep the tool tip activated
                                 // deactivate it
                                 toolTipCaption = string.Empty;
                                 toolTipControl.Activate(false /*activate*/);
@@ -4495,7 +4495,7 @@ namespace System.Windows.Forms
                                 Point mouseCoord = System.Windows.Forms.Control.MousePosition;
                                 activate &= ClientRectangle.Contains(PointToClient(mouseCoord));
 
-                                // reset the tool tip
+                                // Reset the tool tip
                                 toolTipControl.Activate(activate);
                             }
                         }

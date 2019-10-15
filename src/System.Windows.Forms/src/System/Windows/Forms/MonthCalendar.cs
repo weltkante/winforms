@@ -10,8 +10,9 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms.Internal;
 using System.Windows.Forms.Layout;
 using Microsoft.Win32;
-using ArrayList = System.Collections.ArrayList;
+using Microsoft.Win32.SafeHandles;
 using static Interop;
+using ArrayList = System.Collections.ArrayList;
 
 namespace System.Windows.Forms
 {
@@ -1015,6 +1016,8 @@ namespace System.Windows.Forms
             }
         }
 
+        internal override bool SupportsUiaProviders => true;
+
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never), Bindable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override string Text
         {
@@ -1684,6 +1687,13 @@ namespace System.Windows.Forms
             onDateSelected?.Invoke(this, drevent);
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+
+            AccessibilityObject.RaiseAutomationEvent(NativeMethods.UIA_AutomationFocusChangedEventId);
+        }
+
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
@@ -1936,6 +1946,15 @@ namespace System.Windows.Forms
                 return mdsBuffer;
             }
             return mdsBuffer;
+        }
+
+        /// <summary>
+        ///  Sends a Win32 message to this control.  If the control does not yet
+        ///  have a handle, it will be created.
+        /// </summary>
+        internal IntPtr SendMessage(int msg, int wparam, ref NativeMethods.MCGRIDINFO lparam)
+        {
+            return UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), msg, wparam, ref lparam);
         }
 
         /// <summary>
@@ -2630,24 +2649,599 @@ namespace System.Windows.Forms
             TodayLink = 12,
         }
 
+        internal enum CalendarButtonType
+        {
+            Next = 1,
+            Previous = 2
+        }
+
+        internal enum CalendarChildType
+        {
+            Undefined = -1,
+            NextButton = 1,
+            PreviousButton = 2,
+            Footer = 3,
+            Calendar = 4,
+            CalendarHeader = 5,
+            CalendarBody = 6,
+            CalendarRow = 7,
+            CalendarCell = 8,
+            TodayLink = 9
+        }
+
+        /// <summary>
+        /// Represents the calendar body accessible object.
+        /// </summary>
+        internal class CalendarBodyAccessibleObject : CalendarChildAccessibleObject
+        {
+            public CalendarBodyAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarBody)
+            {
+            }
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARBODY, 0, 0, out RECT calendarPartRectangle);
+                return calendarPartRectangle;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.NextSibling => new Func<AccessibleObject>(() =>
+                    {
+                        MonthCalendar owner = (MonthCalendar)_calendarAccessibleObject.Owner;
+                        return owner.ShowToday ? _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.TodayLink) : null;
+                    })(),
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton),
+                    UnsafeNativeMethods.NavigateDirection.FirstChild =>
+                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, _calendarAccessibleObject.HasHeaderRow ? -1 : 0),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            public CalendarChildAccessibleObject GetFromPoint(NativeMethods.MCHITTESTINFO_V6 hitTestInfo)
+            {
+                CalendarChildAccessibleObject accessibleObject = null;
+
+                // TODO: Implement getting corresponding accessible object.
+                switch (hitTestInfo.uHit)
+                {
+                    case NativeMethods.MCHT_CALENDARDAY:
+                        break;
+
+                    case NativeMethods.MCHT_CALENDARWEEKNUM:
+                        break;
+
+                    case NativeMethods.MCHT_CALENDARDATE:
+                        break;
+                }
+
+                if (accessibleObject == null)
+                {
+                    accessibleObject = this;
+                }
+
+                return accessibleObject;
+            }
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    // NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_TableControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => "Calendar body",
+                    NativeMethods.UIA_IsGridPatternAvailablePropertyId => true,
+                    NativeMethods.UIA_IsTablePatternAvailablePropertyId => true,
+                    _ => base.GetPropertyValue(propertyID)
+                };
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_GridPatternId ||
+                    patternId == NativeMethods.UIA_TablePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaders()
+            {
+                return null;
+            }
+
+            internal override UnsafeNativeMethods.RowOrColumnMajor RowOrColumnMajor => UnsafeNativeMethods.RowOrColumnMajor.RowOrColumnMajor_RowMajor;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems()
+            {
+                if (!_calendarAccessibleObject.HasHeaderRow)
+                {
+                    return null;
+                }
+
+                UnsafeNativeMethods.IRawElementProviderSimple[] headers =
+                    new UnsafeNativeMethods.IRawElementProviderSimple[MonthCalendarAccessibleObject.MAX_DAYS];
+                AccessibleObject headerRowAccessibleObject =
+                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, -1);
+
+                for (int columnIndex = 0; columnIndex < MonthCalendarAccessibleObject.MAX_DAYS; columnIndex++)
+                {
+                    headers[columnIndex] = _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, headerRowAccessibleObject, columnIndex);
+                }
+
+                return headers;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column)
+            {
+                AccessibleObject rowAccessibleObject =
+                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, row);
+
+                if (rowAccessibleObject == null)
+                {
+                    return null;
+                }
+
+                return _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, rowAccessibleObject, column);
+            }
+
+            internal override int RowCount => _calendarAccessibleObject.RowCount;
+
+            internal override int ColumnCount => _calendarAccessibleObject.ColumnCount;
+        }
+
+        /// <summary>
+        /// Represents the calendar cell accessible object.
+        /// </summary>
+        internal class CalendarCellAccessibleObject : CalendarGridChildAccessibleObject
+        {
+            private int _rowIndex;
+            private int _columnIndex;
+
+            public CalendarCellAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex, int columnIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarCell, parentAccessibleObject, rowIndex * columnIndex)
+            {
+                _rowIndex = rowIndex;
+                _columnIndex = columnIndex;
+            }
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARCELL, _rowIndex, _columnIndex, out RECT rectangle);
+                return rectangle;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.Parent => _parentAccessibleObject,
+                    UnsafeNativeMethods.NavigateDirection.NextSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, _parentAccessibleObject, _columnIndex + 1),
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, _parentAccessibleObject, _columnIndex - 1),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_ControlTypePropertyId => (_rowIndex == -1) ? NativeMethods.UIA_HeaderControlTypeId : NativeMethods.UIA_DataItemControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => Name,
+                    NativeMethods.UIA_IsGridItemPatternAvailablePropertyId => true,
+                    NativeMethods.UIA_IsTableItemPatternAvailablePropertyId => true,
+                    _ => base.GetPropertyValue(propertyID)
+                };
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_GridItemPatternId ||
+                    patternId == NativeMethods.UIA_TableItemPatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarCell, _parentAccessibleObject, _columnIndex);
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems()
+            {
+                if (!_calendarAccessibleObject.HasHeaderRow)
+                {
+                    return null;
+                }
+
+                AccessibleObject headerRowAccessibleObject =
+                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, _parentAccessibleObject.Parent, -1);
+                AccessibleObject headerCellAccessibleObject =
+                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, headerRowAccessibleObject, _columnIndex);
+
+                return new UnsafeNativeMethods.IRawElementProviderSimple[1] { headerCellAccessibleObject };
+            }
+
+            internal override int Row => _rowIndex;
+
+            internal override int Column => _columnIndex;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _parentAccessibleObject.Parent;
+        }
+
+        /// <summary>
+        /// Represents the calendar child accessible object.
+        /// </summary>
+        internal abstract class CalendarChildAccessibleObject : AccessibleObject
+        {
+            protected MonthCalendarAccessibleObject _calendarAccessibleObject;
+            protected int _calendarIndex;
+            protected CalendarChildType _itemType;
+
+            public CalendarChildAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarChildType itemType)
+            {
+                _calendarAccessibleObject = calendarAccessibleObject;
+                _calendarIndex = calendarIndex;
+                _itemType = itemType;
+            }
+
+            internal override Rectangle BoundingRectangle => CalculateBoundingRectangle();
+
+            protected virtual RECT CalculateBoundingRectangle() => new RECT();
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.Parent => Parent,
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragmentRoot FragmentRoot => _calendarAccessibleObject;
+
+            public override AccessibleObject Parent => _calendarAccessibleObject;
+        }
+
+        /// <summary>
+        /// Represents the calendar grid child accessible object.
+        /// </summary>
+        internal abstract class CalendarGridChildAccessibleObject : CalendarChildAccessibleObject
+        {
+            protected AccessibleObject _parentAccessibleObject;
+            protected int _itemIndex;
+
+            public CalendarGridChildAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarChildType itemType,
+                AccessibleObject parentAccessibleObject, int itemIndex) : base(calendarAccessibleObject, calendarIndex, itemType)
+            {
+                _parentAccessibleObject = parentAccessibleObject;
+                _itemIndex = itemIndex;
+            }
+
+            public override AccessibleObject Parent => _parentAccessibleObject;
+        }
+
+        internal class CalendarHeaderAccessibleObject : CalendarChildAccessibleObject
+        {
+            public CalendarHeaderAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarHeader)
+            {
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.NextButton),
+                    UnsafeNativeMethods.NavigateDirection.NextSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => Name,
+                    _ => base.GetPropertyValue(propertyID)
+                };
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARHEADER, -1, -1, out RECT rectangle);
+                return rectangle;
+            }
+
+            public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarHeader);
+        }
+
+        internal abstract class CalendarButtonAccessibleObject : CalendarChildAccessibleObject
+        {
+            public CalendarButtonAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarButtonType buttonType)
+                : base(calendarAccessibleObject, calendarIndex, (CalendarChildType)buttonType)
+            {
+            }
+
+            protected abstract CalendarButtonType ButtonType { get; }
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                uint dwPart;
+                switch (ButtonType)
+                {
+                    case CalendarButtonType.Previous:
+                        dwPart = (uint)NativeMethods.MCGIP_PREV;
+                        break;
+
+                    case CalendarButtonType.Next:
+                        dwPart = (uint)NativeMethods.MCGIP_NEXT;
+                        break;
+
+                    default:
+                        return new RECT();
+                }
+
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, dwPart, -1, -1, out RECT rectangle);
+                return rectangle;
+            }
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_InvokePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            internal override void Invoke()
+            {
+                // TODO: Implement button click call.
+            }
+        }
+
+        internal class CalendarPreviousButtonAccessibleObject : CalendarButtonAccessibleObject
+        {
+            public CalendarPreviousButtonAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarButtonType.Previous)
+            {
+            }
+
+            protected override CalendarButtonType ButtonType => CalendarButtonType.Previous;
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.NextSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.NextButton),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_BoundingRectanglePropertyId => BoundingRectangle,
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => "Previous",
+                    _ => base.GetPropertyValue(propertyID)
+                };
+        }
+
+        internal class CalendarNextButtonAccessibleObject : CalendarButtonAccessibleObject
+        {
+            public CalendarNextButtonAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarButtonType.Next)
+            {
+            }
+
+            protected override CalendarButtonType ButtonType => CalendarButtonType.Next;
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton),
+                    UnsafeNativeMethods.NavigateDirection.NextSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_BoundingRectanglePropertyId => BoundingRectangle,
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => "Next",
+                    _ => base.GetPropertyValue(propertyID)
+                };
+        }
+
+        internal class CalendarRowAccessibleObject : CalendarGridChildAccessibleObject
+        {
+            int _rowIndex;
+
+            public CalendarRowAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarBodyAccessibleObject parentAccessibleObject, int rowIndex)
+                : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarRow, parentAccessibleObject, rowIndex)
+            {
+                _rowIndex = rowIndex;
+            }
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARROW, _rowIndex, -1, out RECT calendarPartRectangle);
+                return calendarPartRectangle;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.NextSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, _parentAccessibleObject, _rowIndex + 1),
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, _parentAccessibleObject, _rowIndex - 1),
+                    UnsafeNativeMethods.NavigateDirection.FirstChild =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, this, 0),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            public int RowIndex => _rowIndex;
+        }
+
+        internal class CalendarTodayLinkAccessibleObject : CalendarChildAccessibleObject
+        {
+            public CalendarTodayLinkAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarChildType type)
+                : base(calendarAccessibleObject, calendarIndex, CalendarChildType.TodayLink)
+            {
+            }
+
+            protected override RECT CalculateBoundingRectangle()
+            {
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_FOOTER, -1, -1, out RECT calendarPartRectangle);
+                return calendarPartRectangle;
+            }
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_InvokePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_BoundingRectanglePropertyId => BoundingRectangle,
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => "Today",
+                    _ => base.GetPropertyValue(propertyID)
+                };
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
+                direction switch
+                {
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody),
+                    _ => base.FragmentNavigate(direction)
+                };
+
+            internal override void Invoke()
+            {
+                // Make sure that the control is enabled
+                if (SafeNativeMethods.IsWindowEnabled(new HandleRef(null, _calendarAccessibleObject.Owner.Handle)))
+                {
+                    _calendarAccessibleObject.ClickCalendarChild(CalendarChildType.TodayLink);
+                }
+            }
+        }
+
         [ComVisible(true)]
         internal class MonthCalendarAccessibleObject : ControlAccessibleObject
         {
-            private readonly MonthCalendar calendar;
+            internal const int MAX_DAYS = 7;
+            internal const int MAX_WEEKS = 6;
+
+            private readonly MonthCalendar _owner;
+            private int _calendarIndex = 0;
 
             public MonthCalendarAccessibleObject(Control owner)
                 : base(owner)
             {
-                calendar = owner as MonthCalendar;
+                _owner = owner as MonthCalendar;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment ElementProviderFromPoint(double x, double y)
+            {
+                int innerX = (int)x;
+                int innerY = (int)y;
+
+                CalendarChildType calendarChildType = CalendarChildType.Undefined;
+
+                NativeMethods.MCHITTESTINFO_V6 hitTestInfo = GetHitTestInfo(innerX, innerY);
+                switch (hitTestInfo.uHit)
+                {
+                    case NativeMethods.MCHT_TITLEBTNPREV:
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
+
+                    case NativeMethods.MCHT_TITLEBTNNEXT:
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.NextButton);
+                        break;
+
+                    case NativeMethods.MCHT_TITLEMONTH:
+                    case NativeMethods.MCHT_TITLEYEAR:
+                        // Return calendar header.
+                        break;
+
+                    case NativeMethods.MCHT_CALENDARDAY:
+                    case NativeMethods.MCHT_CALENDARWEEKNUM:
+                    case NativeMethods.MCHT_CALENDARDATE:
+                        // Get calendar body's child.
+                        CalendarBodyAccessibleObject calendarBodyAccessibleObject = (CalendarBodyAccessibleObject)GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody);
+                        return calendarBodyAccessibleObject.GetFromPoint(hitTestInfo);
+
+                    case NativeMethods.MCHT_TODAYLINK:
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
+                }
+
+                return base.ElementProviderFromPoint(x, y);
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction)
+            {
+                // TODO: Change to C# 8 switch expression style:
+                switch (direction)
+                {
+                    case UnsafeNativeMethods.NavigateDirection.FirstChild:
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
+                    case UnsafeNativeMethods.NavigateDirection.LastChild:
+                        return _owner.ShowTodayCircle
+                            ? GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.TodayLink)
+                            : GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody);
+                }
+
+                return base.FragmentNavigate(direction);
+            }
+
+            public NativeMethods.MCHITTESTINFO_V6 GetHitTestInfo(int xScreen, int yScreen)
+            {
+                NativeMethods.MCHITTESTINFO_V6 hitTestInfo = new NativeMethods.MCHITTESTINFO_V6();
+                hitTestInfo.cbSize = (int)Marshal.SizeOf(hitTestInfo);
+                hitTestInfo.pt = new NativeMethods.Win32Point();
+                hitTestInfo.st = new NativeMethods.SYSTEMTIME();
+
+                // NativeMethods.GetCursorPos(out Point pt);
+                Point point = new Point(xScreen, yScreen);
+                NativeMethods.MapWindowPoints(IntPtr.Zero, Handle, ref point, 1);
+                hitTestInfo.pt.x = point.X;
+                hitTestInfo.pt.y = point.Y;
+
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_HITTEST, 0, ref hitTestInfo);
+
+                return hitTestInfo;
+            }
+
+            public bool HasHeaderRow
+            {
+                get
+                {
+                    bool result = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, _calendarIndex, -1, 0, out string text);
+                    if (!result || string.IsNullOrEmpty(text))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
             }
 
             public override AccessibleRole Role
             {
                 get
                 {
-                    if (calendar != null)
+                    if (_owner != null)
                     {
-                        AccessibleRole role = calendar.AccessibleRole;
+                        AccessibleRole role = _owner.AccessibleRole;
                         if (role != AccessibleRole.Default)
                         {
                             return role;
@@ -2668,9 +3262,9 @@ namespace System.Windows.Forms
                     }
                     else
                     {
-                        if (calendar != null)
+                        if (_owner != null)
                         {
-                            return calendar.GetType().Name + "(" + calendar.GetType().BaseType.Name + ")";
+                            return _owner.GetType().Name + "(" + _owner.GetType().BaseType.Name + ")";
                         }
                     }
                     return string.Empty;
@@ -2687,45 +3281,45 @@ namespace System.Windows.Forms
                         return name;
                     }
 
-                    if (calendar != null)
+                    if (_owner != null)
                     {
 
-                        if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                        if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
                         {
-                            if (System.DateTime.Equals(calendar.SelectionStart.Date, calendar.SelectionEnd.Date))
+                            if (System.DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
                             {
-                                name = string.Format(SR.MonthCalendarSingleDateSelected, calendar.SelectionStart.ToLongDateString());
+                                name = string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToLongDateString());
                             }
                             else
                             {
-                                name = string.Format(SR.MonthCalendarRangeSelected, calendar.SelectionStart.ToLongDateString(), calendar.SelectionEnd.ToLongDateString());
+                                name = string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
                             }
                         }
-                        else if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
+                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
                         {
-                            if (System.DateTime.Equals(calendar.SelectionStart.Month, calendar.SelectionEnd.Month))
+                            if (System.DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
                             {
-                                name = string.Format(SR.MonthCalendarSingleDateSelected, calendar.SelectionStart.ToString("y"));
+                                name = string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToString("y"));
                             }
                             else
                             {
-                                name = string.Format(SR.MonthCalendarRangeSelected, calendar.SelectionStart.ToString("y"), calendar.SelectionEnd.ToString("y"));
+                                name = string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
                             }
                         }
-                        else if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_DECADE)
+                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_DECADE)
                         {
-                            if (System.DateTime.Equals(calendar.SelectionStart.Year, calendar.SelectionEnd.Year))
+                            if (System.DateTime.Equals(_owner.SelectionStart.Year, _owner.SelectionEnd.Year))
                             {
-                                name = string.Format(SR.MonthCalendarSingleYearSelected, calendar.SelectionStart.ToString("yyyy"));
+                                name = string.Format(SR.MonthCalendarSingleYearSelected, _owner.SelectionStart.ToString("yyyy"));
                             }
                             else
                             {
-                                name = string.Format(SR.MonthCalendarYearRangeSelected, calendar.SelectionStart.ToString("yyyy"), calendar.SelectionEnd.ToString("yyyy"));
+                                name = string.Format(SR.MonthCalendarYearRangeSelected, _owner.SelectionStart.ToString("yyyy"), _owner.SelectionEnd.ToString("yyyy"));
                             }
                         }
-                        else if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_CENTURY)
+                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_CENTURY)
                         {
-                            name = string.Format(SR.MonthCalendarSingleDecadeSelected, calendar.SelectionStart.ToString("yyyy"));
+                            name = string.Format(SR.MonthCalendarSingleDecadeSelected, _owner.SelectionStart.ToString("yyyy"));
                         }
                     }
                     return name;
@@ -2739,33 +3333,33 @@ namespace System.Windows.Forms
                     var value = string.Empty;
                     try
                     {
-                        if (calendar != null)
+                        if (_owner != null)
                         {
-                            if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                            if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
                             {
-                                if (System.DateTime.Equals(calendar.SelectionStart.Date, calendar.SelectionEnd.Date))
+                                if (System.DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
                                 {
-                                    value = calendar.SelectionStart.ToLongDateString();
+                                    value = _owner.SelectionStart.ToLongDateString();
                                 }
                                 else
                                 {
-                                    value = string.Format("{0} - {1}", calendar.SelectionStart.ToLongDateString(), calendar.SelectionEnd.ToLongDateString());
+                                    value = string.Format("{0} - {1}", _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
                                 }
                             }
-                            else if (calendar.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
+                            else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
                             {
-                                if (System.DateTime.Equals(calendar.SelectionStart.Month, calendar.SelectionEnd.Month))
+                                if (System.DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
                                 {
-                                    value = calendar.SelectionStart.ToString("y");
+                                    value = _owner.SelectionStart.ToString("y");
                                 }
                                 else
                                 {
-                                    value = string.Format("{0} - {1}", calendar.SelectionStart.ToString("y"), calendar.SelectionEnd.ToString("y"));
+                                    value = string.Format("{0} - {1}", _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
                                 }
                             }
                             else
                             {
-                                value = string.Format("{0} - {1}", calendar.SelectionRange.Start.ToString(), calendar.SelectionRange.End.ToString());
+                                value = string.Format("{0} - {1}", _owner.SelectionRange.Start.ToString(), _owner.SelectionRange.End.ToString());
                             }
                         }
                     }
@@ -2780,8 +3374,257 @@ namespace System.Windows.Forms
                     base.Value = value;
                 }
             }
+
+            public void ClickCalendarChild(CalendarChildType calendarChildType)
+            {
+                // TODO: Implement click action.
+            }
+
+            public CalendarChildAccessibleObject GetCalendarChildAccessibleObject(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1)
+            {
+                // TODO: Change to C# 8 style switch expression:
+                switch (calendarChildType)
+                {
+                    case CalendarChildType.PreviousButton: return new CalendarPreviousButtonAccessibleObject(this, _calendarIndex);
+                    case CalendarChildType.NextButton: return new CalendarNextButtonAccessibleObject(this, _calendarIndex);
+                    case CalendarChildType.CalendarHeader: return new CalendarHeaderAccessibleObject(this, _calendarIndex);
+                    case CalendarChildType.CalendarBody: return new CalendarBodyAccessibleObject(this, _calendarIndex);
+                    case CalendarChildType.CalendarRow: return GetCalendarRow(calendarIndex, parentAccessibleObject, index);
+                    case CalendarChildType.CalendarCell: return GetCalendarCell(calendarIndex, parentAccessibleObject, index);
+                    case CalendarChildType.TodayLink: return new CalendarTodayLinkAccessibleObject(this, (int)CalendarChildType.TodayLink, calendarChildType);
+                    default: return null;
+                }
+            }
+
+            public string GetCalendarChildName(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1)
+            {
+                string text = string.Empty;
+
+                bool result = calendarChildType switch
+                {
+                    CalendarChildType.CalendarHeader => GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, -1, -1, out text),
+                    CalendarChildType.CalendarCell =>
+                        GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, ((CalendarRowAccessibleObject)parentAccessibleObject).RowIndex, index, out text),
+                    _ => false
+                };
+
+                if (!result)
+                {
+                    return string.Empty;
+                }
+
+                return text;
+            }
+
+            private CalendarCellAccessibleObject GetCalendarCell(int calendarIndex, AccessibleObject parentAccessibleObject, int columnIndex)
+            {
+                if (columnIndex >= MAX_DAYS)
+                {
+                    return null;
+                }
+
+                CalendarRowAccessibleObject parentRowAccessibleObject = (CalendarRowAccessibleObject)parentAccessibleObject;
+                int rowIndex = parentRowAccessibleObject.RowIndex;
+                bool result = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
+                if (result && !string.IsNullOrEmpty(text))
+                {
+                    // The cell is present on the calendar, so create accessible object for it.
+                    return new CalendarCellAccessibleObject(this, calendarIndex, parentAccessibleObject, rowIndex, columnIndex);
+                }
+
+                return null;
+            }
+
+            private CalendarRowAccessibleObject GetCalendarRow(int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex)
+            {
+                // Search name for the first cell in the row.
+                bool success = GetCalendarGridInfo(
+                    NativeMethods.MCGIF_DATE,
+                    NativeMethods.MCGIP_CALENDARCELL,
+                    calendarIndex,
+                    rowIndex,
+                    0,
+                    out RECT calendarPartRectangle,
+                    out NativeMethods.SYSTEMTIME endDate,
+                    out NativeMethods.SYSTEMTIME startDate);
+
+                if (!success)
+                {
+                    // Not able to get cell date for the row.
+                    return null;
+                }
+
+                SelectionRange cellsRange = _owner.GetDisplayRange(false);
+
+                if (cellsRange.Start > DateTimePicker.SysTimeToDateTime(endDate) || cellsRange.End < DateTimePicker.SysTimeToDateTime(startDate))
+                {
+                    // Do not create row if the row's first cell is out of the current calendar's view range.
+                    return null;
+                }
+
+                return new CalendarRowAccessibleObject(this, calendarIndex, (CalendarBodyAccessibleObject)parentAccessibleObject, rowIndex);
+            }
+
+            private bool GetCalendarGridInfo(
+                uint dwFlags,
+                uint dwPart,
+                int calendarIndex,
+                int row,
+                int column,
+                out RECT rectangle,
+                out NativeMethods.SYSTEMTIME endDate,
+                out NativeMethods.SYSTEMTIME startDate)
+            {
+                Debug.Assert(
+                    (dwFlags & ~(NativeMethods.MCGIF_DATE | NativeMethods.MCGIF_RECT)) == 0,
+                    "GetCalendarGridInfo() should be used only to obtain Date and Rect,"
+                    + "dwFlags has flag bits other that MCGIF_DATE and MCGIF_RECT");
+
+                NativeMethods.MCGRIDINFO gridInfo = new NativeMethods.MCGRIDINFO();
+                gridInfo.dwFlags = dwFlags;
+                gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
+                gridInfo.dwPart = dwPart;
+                gridInfo.iCalendar = calendarIndex;
+                gridInfo.iCol = column;
+                gridInfo.iRow = row;
+                bool result;
+
+                try
+                {
+                    result = GetCalendarGridInfo(ref gridInfo);
+                    rectangle = gridInfo.rc;
+                    endDate = gridInfo.stEnd;
+                    startDate = gridInfo.stStart;
+                }
+                catch
+                {
+                    rectangle = new RECT();
+                    endDate = new NativeMethods.SYSTEMTIME();
+                    startDate = new NativeMethods.SYSTEMTIME();
+                    result = false;
+                }
+
+                return result;
+            }
+
+            private bool GetCalendarGridInfo(ref NativeMethods.MCGRIDINFO gridInfo)
+            {
+                // Do not use this if gridInfo.dwFlags contains MCGIF_NAME;
+                // use GetCalendarGridInfoText() instead.
+                Debug.Assert(
+                    (gridInfo.dwFlags & NativeMethods.MCGIF_NAME) == 0,
+                    "Param dwFlags contains MCGIF_NAME, use GetCalendarGridInfoText() to retrieve the text of a calendar part.");
+
+                gridInfo.dwFlags &= ~(uint)NativeMethods.MCGIF_NAME;
+
+                return _owner.SendMessage(NativeMethods.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+            }
+
+            private bool GetCalendarGridInfoText(uint dwPart, int calendarIndex, int row, int column, out string text)
+            {
+                NativeMethods.MCGRIDINFO gridInfo = new NativeMethods.MCGRIDINFO();
+                gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
+                gridInfo.dwPart = dwPart;
+                gridInfo.iCalendar = calendarIndex;
+                gridInfo.iCol = column;
+                gridInfo.iRow = row;
+                gridInfo.pszName = ""; // Specify not null value to allow writing new value in native code by field address.
+                gridInfo.cchName = 80; // Const value.
+                bool result = GetCalendarGridInfoText(ref gridInfo);
+                text = gridInfo.pszName;
+                return result;
+            }
+
+            // Use to retrieve MCGIF_NAME only.
+            private bool GetCalendarGridInfoText(ref NativeMethods.MCGRIDINFO gridInfo)
+            {
+                Debug.Assert(
+                    gridInfo.dwFlags == 0,
+                    "gridInfo.dwFlags should be 0 when calling GetCalendarGridInfoText");
+
+                gridInfo.dwFlags = NativeMethods.MCGIF_NAME;
+
+                return _owner.SendMessage(NativeMethods.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+            }
+
+            public bool GetCalendarPartRectangle(int calendarIndex, uint dwPart, int row, int column, out RECT calendarPartRectangle)
+            {
+                bool success = GetCalendarGridInfo(
+                    NativeMethods.MCGIF_RECT,
+                    dwPart,
+                    calendarIndex,
+                    row,
+                    column,
+                    out calendarPartRectangle,
+                    out NativeMethods.SYSTEMTIME endDate, out NativeMethods.SYSTEMTIME startDate);
+
+                if (success)
+                {
+                    success = UnsafeNativeMethods.MapWindowPoints(new HandleRef(this, Owner.Handle), new HandleRef(null, IntPtr.Zero), ref calendarPartRectangle, 2) != 0;
+                }
+
+                if (!success)
+                {
+                    calendarPartRectangle = new RECT();
+                }
+
+                return success;
+            }
+
+            internal override object GetPropertyValue(int propertyID) =>
+                propertyID switch
+                {
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_CalendarControlTypeId,
+                    NativeMethods.UIA_NamePropertyId => "Calendar",
+                    _ => base.GetPropertyValue(propertyID)
+                };
+
+            internal override int ColumnCount
+            {
+                get
+                {
+                    int columnCount = 0;
+                    bool success = true;
+                    while (success)
+                    {
+                        success = GetCalendarGridInfo(
+                            NativeMethods.MCGIF_DATE,
+                            NativeMethods.MCGIP_CALENDARCELL,
+                            _calendarIndex,
+                            0,
+                            columnCount++,
+                            out RECT calendarPartRectangle,
+                            out NativeMethods.SYSTEMTIME endDate,
+                            out NativeMethods.SYSTEMTIME startDate);
+                    }
+
+                    return columnCount;
+                }
+            }
+
+            internal override int RowCount
+            {
+                get
+                {
+                    int rowCount = 0;
+                    bool success = true;
+                    while (success)
+                    {
+                        success = GetCalendarGridInfo(
+                            NativeMethods.MCGIF_DATE,
+                            NativeMethods.MCGIP_CALENDARCELL,
+                            _calendarIndex,
+                            rowCount++,
+                            0,
+                            out RECT calendarPartRectangle,
+                            out NativeMethods.SYSTEMTIME endDate,
+                            out NativeMethods.SYSTEMTIME startDate);
+                    }
+
+                    return rowCount;
+                }
+            }
         }
 
     } // end class MonthCalendar
 }
-

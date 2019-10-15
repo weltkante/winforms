@@ -571,6 +571,9 @@ namespace System.Windows.Forms
         public static extern IntPtr SendMessage(HandleRef hWnd, int msg, int wParam, NativeMethods.MCHITTESTINFO lParam);
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
+        public static extern IntPtr SendMessage(HandleRef hWnd, int msg, int wParam, ref NativeMethods.MCHITTESTINFO_V6 lParam);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(HandleRef hWnd, int msg, int wParam, NativeMethods.SYSTEMTIME lParam);
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
@@ -611,6 +614,12 @@ namespace System.Windows.Forms
 
         [DllImport(ExternDll.User32, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, IntPtr lParam, int flags, int timeout, out IntPtr pdwResult);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
+        public extern static IntPtr SendMessage(HandleRef hWnd, int Msg, int wParam, [In, Out] ref NativeMethods.MCGRIDINFO gridInfo);
+
+        [DllImport(ExternDll.User32, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, [In, Out] ref NativeMethods.MCGRIDINFO gridInfo, int flags, int timeout, out IntPtr pdwResult);
 
         public const int SMTO_ABORTIFHUNG = 0x0002;
 
@@ -1110,8 +1119,8 @@ namespace System.Windows.Forms
 
             [PreserveSig]
             Interop.HRESULT TransformCoords(
-                Point *pPtlHimetric,
-                PointF *pPtfContainer,
+                Point* pPtlHimetric,
+                PointF* pPtfContainer,
                 uint dwFlags);
 
             [PreserveSig]
@@ -2832,7 +2841,7 @@ namespace System.Windows.Forms
                 uint dwDrawAspect,
                 int lindex,
                 NativeMethods.tagDVTARGETDEVICE ptd,
-                Size *lpsizel);
+                Size* lpsizel);
         }
 
         [ComImport(), Guid("0000010C-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -4694,5 +4703,8 @@ namespace System.Windows.Forms
             /// </summary>
             void ScrollIntoView();
         }
+
+        [DllImport(ExternDll.Kernel32, SetLastError = true)]
+        internal static extern bool IsWow64Process(Microsoft.Win32.SafeHandles.SafeProcessHandle hProcess, out bool Wow64Process);
     }
 }

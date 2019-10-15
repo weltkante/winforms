@@ -852,7 +852,9 @@ namespace System.Windows.Forms
         MDITILE_VERTICAL = 0x0000,
         MDITILE_HORIZONTAL = 0x0001,
         MDITILE_SKIPDISABLED = 0x0002,
+        MCM_GETCURSEL = (0x1000 + 1),
         MCM_SETMAXSELCOUNT = (0x1000 + 4),
+        MCM_GETSELRANGE = (0x1000 + 5),
         MCM_SETSELRANGE = (0x1000 + 6),
         MCM_GETMONTHRANGE = (0x1000 + 7),
         MCM_GETMINREQRECT = (0x1000 + 9),
@@ -861,9 +863,11 @@ namespace System.Windows.Forms
         MCM_GETTODAY = (0x1000 + 13),
         MCM_HITTEST = (0x1000 + 14),
         MCM_SETFIRSTDAYOFWEEK = (0x1000 + 15),
+        MCM_GETRANGE = (0x1000 + 17),
         MCM_SETRANGE = (0x1000 + 18),
         MCM_SETMONTHDELTA = (0x1000 + 20),
         MCM_GETMAXTODAYWIDTH = (0x1000 + 21),
+        MCM_GETCALENDARGRIDINFO = (0x1000 + 24),
         MCHT_TITLE = 0x00010000,
         MCHT_CALENDAR = 0x00020000,
         MCHT_TODAYLINK = 0x00030000,
@@ -892,7 +896,40 @@ namespace System.Windows.Forms
         MCS_WEEKNUMBERS = 0x0004,
         MCS_NOTODAYCIRCLE = 0x0008,
         MCS_NOTODAY = 0x0010,
+        MCGIP_CALENDARCONTROL = 0,
+        MCGIP_NEXT = 1,
+        MCGIP_PREV = 2,
+        MCGIP_FOOTER = 3,
+        MCGIP_CALENDAR = 4,
+        MCGIP_CALENDARHEADER = 5,
+        MCGIP_CALENDARBODY = 6,
+        MCGIP_CALENDARROW = 7,
+        MCGIP_CALENDARCELL = 8,
+        MCGIF_DATE = 0x00000001,
+        MCGIF_RECT = 0x00000002,
+        MCGIF_NAME = 0x00000004,
         MSAA_MENU_SIG = (unchecked((int)0xAA0DF00D));
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        unsafe public struct MCGRIDINFO
+        {
+            public uint cbSize;
+            public uint dwPart;
+            public uint dwFlags;
+            public int iCalendar;
+            public int iRow;
+            public int iCol;
+            public bool bSelected;
+            public SYSTEMTIME stStart;
+            public SYSTEMTIME stEnd;
+            public Interop.RECT rc;
+
+            // [MarshalAs(UnmanagedType.LPStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string pszName;
+
+            public uint cchName;
+        }
 
         public const int NIM_ADD = 0x00000000,
         NIM_MODIFY = 0x00000001,
@@ -3760,6 +3797,55 @@ namespace System.Windows.Forms
             public short st_wMinute = 0;
             public short st_wSecond = 0;
             public short st_wMilliseconds = 0;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            internal int x;
+            internal int y;
+
+            internal Win32Point(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+
+            static public explicit operator Win32Point(Point pt)
+            {
+                return checked(new Win32Point((int)pt.X, (int)pt.Y));
+            }
+        }
+
+        /// <summary>
+        /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/commctrl/ns-commctrl-mchittestinfo"/>
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct MCHITTESTINFO_V6
+        {
+            public int cbSize;
+
+            public Win32Point pt;
+            // public int pt_x;
+            // public int pt_y;
+
+            public int uHit;
+
+            public SYSTEMTIME st;
+            //public short st_wYear;
+            //public short st_wMonth;
+            //public short st_wDayOfWeek;
+            //public short st_wDay;
+            //public short st_wHour;
+            //public short st_wMinute;
+            //public short st_wSecond;
+            //public short st_wMilliseconds;
+
+            public Interop.RECT rc;
+
+            public int iOffset;
+            public int iRow;
+            public int iCol;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]

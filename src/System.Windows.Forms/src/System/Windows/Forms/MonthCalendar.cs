@@ -2693,7 +2693,7 @@ namespace System.Windows.Forms
                         MonthCalendar owner = (MonthCalendar)_calendarAccessibleObject.Owner;
                         return owner.ShowToday ? _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.TodayLink) : null;
                     })(),
-                    UnsafeNativeMethods.NavigateDirection.PreviousSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton),
+                    UnsafeNativeMethods.NavigateDirection.PreviousSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarHeader),
                     UnsafeNativeMethods.NavigateDirection.FirstChild =>
                     _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, _calendarAccessibleObject.HasHeaderRow ? -1 : 0),
                     _ => base.FragmentNavigate(direction)
@@ -2727,7 +2727,7 @@ namespace System.Windows.Forms
             internal override object GetPropertyValue(int propertyID) =>
                 propertyID switch
                 {
-                    // NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_TableControlTypeId,
+                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_TableControlTypeId,
                     NativeMethods.UIA_NamePropertyId => "Calendar body",
                     NativeMethods.UIA_IsGridPatternAvailablePropertyId => true,
                     NativeMethods.UIA_IsTablePatternAvailablePropertyId => true,
@@ -3041,7 +3041,7 @@ namespace System.Windows.Forms
                 {
                     UnsafeNativeMethods.NavigateDirection.PreviousSibling =>
                         _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton),
-                    UnsafeNativeMethods.NavigateDirection.NextSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody),
+                    UnsafeNativeMethods.NavigateDirection.NextSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarHeader),
                     _ => base.FragmentNavigate(direction)
                 };
 
@@ -3399,7 +3399,7 @@ namespace System.Windows.Forms
 
                 bool result = calendarChildType switch
                 {
-                    CalendarChildType.CalendarHeader => GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, -1, -1, out text),
+                    CalendarChildType.CalendarHeader => GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out text),
                     CalendarChildType.CalendarCell =>
                         GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, ((CalendarRowAccessibleObject)parentAccessibleObject).RowIndex, index, out text),
                     _ => false
@@ -3572,27 +3572,56 @@ namespace System.Windows.Forms
                 propertyID switch
                 {
                     NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_CalendarControlTypeId,
-                    NativeMethods.UIA_NamePropertyId => "Calendar",
+                    NativeMethods.UIA_NamePropertyId => Name,
+                    NativeMethods.UIA_IsLegacyIAccessiblePatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)
                 };
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_LegacyIAccessiblePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
 
             internal override int ColumnCount
             {
                 get
                 {
+                    GetCalendarGridInfo(
+                        NativeMethods.MCGIF_RECT,
+                        NativeMethods.MCGIP_CALENDARBODY,
+                        _calendarIndex,
+                        -1,
+                        -1,
+                        out RECT calendarBodyRectangle,
+                        out NativeMethods.SYSTEMTIME endDate,
+                        out NativeMethods.SYSTEMTIME startDate);
+
                     int columnCount = 0;
                     bool success = true;
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            NativeMethods.MCGIF_DATE,
+                            NativeMethods.MCGIF_RECT,
                             NativeMethods.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             0,
-                            columnCount++,
+                            columnCount,
                             out RECT calendarPartRectangle,
-                            out NativeMethods.SYSTEMTIME endDate,
-                            out NativeMethods.SYSTEMTIME startDate);
+                            out endDate,
+                            out startDate);
+
+                        // Out of the body, so this is out of the grid column.
+                        if (calendarPartRectangle.left <= calendarBodyRectangle.right)
+                        {
+                            break;
+                        }
+
+                        columnCount++;
                     }
 
                     return columnCount;
@@ -3603,19 +3632,37 @@ namespace System.Windows.Forms
             {
                 get
                 {
+                    GetCalendarGridInfo(
+                        NativeMethods.MCGIF_RECT,
+                        NativeMethods.MCGIP_CALENDARBODY,
+                        _calendarIndex,
+                        -1,
+                        -1,
+                        out RECT calendarBodyRectangle,
+                        out NativeMethods.SYSTEMTIME endDate,
+                        out NativeMethods.SYSTEMTIME startDate);
+
                     int rowCount = 0;
                     bool success = true;
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            NativeMethods.MCGIF_DATE,
+                            NativeMethods.MCGIF_RECT,
                             NativeMethods.MCGIP_CALENDARCELL,
                             _calendarIndex,
-                            rowCount++,
+                            rowCount,
                             0,
                             out RECT calendarPartRectangle,
-                            out NativeMethods.SYSTEMTIME endDate,
-                            out NativeMethods.SYSTEMTIME startDate);
+                            out endDate,
+                            out startDate);
+
+                        // Out of the body, so this is out of the grid row.
+                        if (calendarPartRectangle.top <= calendarBodyRectangle.bottom)
+                        {
+                            break;
+                        }
+
+                        rowCount++;
                     }
 
                     return rowCount;

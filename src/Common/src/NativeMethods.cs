@@ -924,7 +924,6 @@ namespace System.Windows.Forms
             public SYSTEMTIME stEnd;
             public Interop.RECT rc;
 
-            // [MarshalAs(UnmanagedType.LPStr)]
             [MarshalAs(UnmanagedType.LPWStr)]
             public string pszName;
 

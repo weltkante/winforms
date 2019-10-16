@@ -1728,6 +1728,11 @@ namespace System.Windows.Forms
             onRightToLeftLayoutChanged?.Invoke(this, e);
         }
 
+        internal void RaiseMouseClick(MouseEventArgs mouseEventArgs)
+        {
+            OnMouseClick(mouseEventArgs);
+        }
+
         /// <summary>
         ///  Removes all annually bolded days.  Be sure to call updateBoldedDates() afterwards.
         /// </summary>
@@ -2701,27 +2706,18 @@ namespace System.Windows.Forms
 
             public CalendarChildAccessibleObject GetFromPoint(NativeMethods.MCHITTESTINFO_V6 hitTestInfo)
             {
-                CalendarChildAccessibleObject accessibleObject = null;
-
-                // TODO: Implement getting corresponding accessible object.
                 switch (hitTestInfo.uHit)
                 {
                     case NativeMethods.MCHT_CALENDARDAY:
-                        break;
-
                     case NativeMethods.MCHT_CALENDARWEEKNUM:
-                        break;
-
                     case NativeMethods.MCHT_CALENDARDATE:
-                        break;
+                        AccessibleObject rowAccessibleObject =
+                            _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, hitTestInfo.iRow);
+                        return
+                            _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, rowAccessibleObject, hitTestInfo.iCol);
                 }
 
-                if (accessibleObject == null)
-                {
-                    accessibleObject = this;
-                }
-
-                return accessibleObject;
+                return this;
             }
 
             internal override object GetPropertyValue(int propertyID) =>
@@ -2837,12 +2833,18 @@ namespace System.Windows.Forms
             internal override bool IsPatternSupported(int patternId)
             {
                 if (patternId == NativeMethods.UIA_GridItemPatternId ||
+                    patternId == NativeMethods.UIA_InvokePatternId ||
                     patternId == NativeMethods.UIA_TableItemPatternId)
                 {
                     return true;
                 }
 
                 return base.IsPatternSupported(patternId);
+            }
+
+            internal override void Invoke()
+            {
+                RaiseMouseClick();
             }
 
             public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarCell, _parentAccessibleObject, _columnIndex);
@@ -2901,6 +2903,20 @@ namespace System.Windows.Forms
             internal override UnsafeNativeMethods.IRawElementProviderFragmentRoot FragmentRoot => _calendarAccessibleObject;
 
             public override AccessibleObject Parent => _calendarAccessibleObject;
+
+            public void RaiseMouseClick()
+            {
+                // Make sure that the control is enabled.
+                if (!SafeNativeMethods.IsWindowEnabled(new HandleRef(null, _calendarAccessibleObject.Owner.Handle)))
+                {
+                    return;
+                }
+
+                var rectangle = CalculateBoundingRectangle();
+                int x = (rectangle.right - rectangle.left) / 2;
+                int y = (rectangle.bottom - rectangle.top) / 2;
+                _calendarAccessibleObject.RaiseMouseClick(new MouseEventArgs(MouseButtons.Left, 1, x, y, 0));
+            }
         }
 
         /// <summary>
@@ -2952,6 +2968,21 @@ namespace System.Windows.Forms
             }
 
             public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarHeader);
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_InvokePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            internal override void Invoke()
+            {
+                RaiseMouseClick();
+            }
         }
 
         internal abstract class CalendarButtonAccessibleObject : CalendarChildAccessibleObject
@@ -2996,7 +3027,7 @@ namespace System.Windows.Forms
 
             internal override void Invoke()
             {
-                // TODO: Implement button click call.
+                RaiseMouseClick();
             }
         }
 
@@ -3128,11 +3159,7 @@ namespace System.Windows.Forms
 
             internal override void Invoke()
             {
-                // Make sure that the control is enabled
-                if (SafeNativeMethods.IsWindowEnabled(new HandleRef(null, _calendarAccessibleObject.Owner.Handle)))
-                {
-                    _calendarAccessibleObject.ClickCalendarChild(CalendarChildType.TodayLink);
-                }
+                RaiseMouseClick();
             }
         }
 
@@ -3156,8 +3183,6 @@ namespace System.Windows.Forms
                 int innerX = (int)x;
                 int innerY = (int)y;
 
-                CalendarChildType calendarChildType = CalendarChildType.Undefined;
-
                 NativeMethods.MCHITTESTINFO_V6 hitTestInfo = GetHitTestInfo(innerX, innerY);
                 switch (hitTestInfo.uHit)
                 {
@@ -3166,12 +3191,11 @@ namespace System.Windows.Forms
 
                     case NativeMethods.MCHT_TITLEBTNNEXT:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.NextButton);
-                        break;
 
+                    case NativeMethods.MCHT_TITLE:
                     case NativeMethods.MCHT_TITLEMONTH:
                     case NativeMethods.MCHT_TITLEYEAR:
-                        // Return calendar header.
-                        break;
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarHeader);
 
                     case NativeMethods.MCHT_CALENDARDAY:
                     case NativeMethods.MCHT_CALENDARWEEKNUM:
@@ -3181,7 +3205,7 @@ namespace System.Windows.Forms
                         return calendarBodyAccessibleObject.GetFromPoint(hitTestInfo);
 
                     case NativeMethods.MCHT_TODAYLINK:
-                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
+                        return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.TodayLink);
                 }
 
                 return base.ElementProviderFromPoint(x, y);
@@ -3375,11 +3399,6 @@ namespace System.Windows.Forms
                 }
             }
 
-            public void ClickCalendarChild(CalendarChildType calendarChildType)
-            {
-                // TODO: Implement click action.
-            }
-
             public CalendarChildAccessibleObject GetCalendarChildAccessibleObject(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1) =>
                  calendarChildType switch
                  {
@@ -3525,8 +3544,8 @@ namespace System.Windows.Forms
                 gridInfo.iCalendar = calendarIndex;
                 gridInfo.iCol = column;
                 gridInfo.iRow = row;
-                gridInfo.pszName = ""; // Specify not null value to allow writing new value in native code by field address.
-                gridInfo.cchName = 80; // Const value.
+                gridInfo.pszName = new String(""); // Specify not null value to allow writing new value in native code by field address.
+                gridInfo.cchName = 128; // Const value.
                 bool result = GetCalendarGridInfoText(ref gridInfo);
                 text = gridInfo.pszName;
                 return result;
@@ -3585,6 +3604,11 @@ namespace System.Windows.Forms
                 }
 
                 return base.IsPatternSupported(patternId);
+            }
+
+            public void RaiseMouseClick(MouseEventArgs mouseEventArgs)
+            {
+                _owner.RaiseMouseClick(mouseEventArgs);
             }
 
             internal override int ColumnCount

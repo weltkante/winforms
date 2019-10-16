@@ -1,0 +1,25 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- a single file taht represents the contact to validate against the project referencing this target -->
+    <StableApiProject></StableApiProject>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(RunApiCompat)' == 'true'">
+    <PackageReference Include="Microsoft.DotNet.ApiCompat"
+                      Version="$(MicrosoftDotNetApiCompatPackageVersion)"
+                      PrivateAssets="All" />
+  </ItemGroup>
+
+  <!--Target Name="ResolvePreviousReleaseContract">
+    <MSBuild Projects="$(StableApiProject)"
+             Targets="GetContract"
+             Properties="ContractName=$(AssemblyName);TargetFramework=$(TargetFramework)">
+      <Output TaskParameter="TargetOutputs" ItemName="ResolvedMatchingContract"/>
+    </MSBuild>
+    <PropertyGroup>
+      <ContractOutputPath>%(ResolvedMatchingContract.DependencyPaths)</ContractOutputPath>
+    </PropertyGroup>
+  </Target-->
+
+</Project>

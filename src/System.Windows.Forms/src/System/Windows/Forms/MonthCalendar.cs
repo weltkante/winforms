@@ -3380,21 +3380,18 @@ namespace System.Windows.Forms
                 // TODO: Implement click action.
             }
 
-            public CalendarChildAccessibleObject GetCalendarChildAccessibleObject(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1)
-            {
-                // TODO: Change to C# 8 style switch expression:
-                switch (calendarChildType)
-                {
-                    case CalendarChildType.PreviousButton: return new CalendarPreviousButtonAccessibleObject(this, _calendarIndex);
-                    case CalendarChildType.NextButton: return new CalendarNextButtonAccessibleObject(this, _calendarIndex);
-                    case CalendarChildType.CalendarHeader: return new CalendarHeaderAccessibleObject(this, _calendarIndex);
-                    case CalendarChildType.CalendarBody: return new CalendarBodyAccessibleObject(this, _calendarIndex);
-                    case CalendarChildType.CalendarRow: return GetCalendarRow(calendarIndex, parentAccessibleObject, index);
-                    case CalendarChildType.CalendarCell: return GetCalendarCell(calendarIndex, parentAccessibleObject, index);
-                    case CalendarChildType.TodayLink: return new CalendarTodayLinkAccessibleObject(this, (int)CalendarChildType.TodayLink, calendarChildType);
-                    default: return null;
-                }
-            }
+            public CalendarChildAccessibleObject GetCalendarChildAccessibleObject(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1) =>
+                 calendarChildType switch
+                 {
+                     CalendarChildType.PreviousButton => new CalendarPreviousButtonAccessibleObject(this, _calendarIndex),
+                     CalendarChildType.NextButton => new CalendarNextButtonAccessibleObject(this, _calendarIndex),
+                     CalendarChildType.CalendarHeader => new CalendarHeaderAccessibleObject(this, _calendarIndex),
+                     CalendarChildType.CalendarBody => new CalendarBodyAccessibleObject(this, _calendarIndex),
+                     CalendarChildType.CalendarRow => GetCalendarRow(calendarIndex, parentAccessibleObject, index),
+                     CalendarChildType.CalendarCell => GetCalendarCell(calendarIndex, parentAccessibleObject, index),
+                     CalendarChildType.TodayLink => new CalendarTodayLinkAccessibleObject(this, (int)CalendarChildType.TodayLink, calendarChildType),
+                     _ => null
+                 };
 
             public string GetCalendarChildName(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1)
             {

@@ -4703,8 +4703,5 @@ namespace System.Windows.Forms
             /// </summary>
             void ScrollIntoView();
         }
-
-        [DllImport(ExternDll.Kernel32, SetLastError = true)]
-        internal static extern bool IsWow64Process(Microsoft.Win32.SafeHandles.SafeProcessHandle hProcess, out bool Wow64Process);
     }
 }

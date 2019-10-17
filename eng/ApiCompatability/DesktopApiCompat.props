@@ -16,7 +16,7 @@
          API missing from old) -->
     <RunApiCompatForSrc>true</RunApiCompatForSrc>
     <RunMatchingRefApiCompat>false</RunMatchingRefApiCompat>
-    <DesktopAPICompatLeftOperand>"classic desktop framework"</DesktopAPICompatLeftOperand>
+    <DesktopAPICompatLeftOperand>".NET 4.7.2 implementation"</DesktopAPICompatLeftOperand>
     <DesktopAPICompatRightOperand>".NET Core 3.0 implementation"</DesktopAPICompatRightOperand>
     <ApiCompatArgs>$(ApiCompatArgs) --left-operand $(DesktopAPICompatLeftOperand) --right-operand $(DesktopAPICompatRightOperand)</ApiCompatArgs>
   </PropertyGroup>

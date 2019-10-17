@@ -2682,6 +2682,8 @@ namespace System.Windows.Forms
         /// </summary>
         internal class CalendarBodyAccessibleObject : CalendarChildAccessibleObject
         {
+            private int _childId = 4;
+
             public CalendarBodyAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
                 : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarBody)
             {
@@ -2692,6 +2694,8 @@ namespace System.Windows.Forms
                 _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARBODY, 0, 0, out RECT calendarPartRectangle);
                 return calendarPartRectangle;
             }
+
+            internal override int GetChildId() => _childId;
 
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
@@ -2812,6 +2816,8 @@ namespace System.Windows.Forms
                 return rectangle;
             }
 
+            internal override int GetChildId() => _columnIndex + 1;
+
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
                 {
@@ -2828,6 +2834,7 @@ namespace System.Windows.Forms
                 {
                     NativeMethods.UIA_ControlTypePropertyId => (_rowIndex == -1) ? NativeMethods.UIA_HeaderControlTypeId : NativeMethods.UIA_DataItemControlTypeId,
                     NativeMethods.UIA_NamePropertyId => Name,
+                    NativeMethods.UIA_HasKeyboardFocusPropertyId => true,
                     NativeMethods.UIA_IsGridItemPatternAvailablePropertyId => true,
                     NativeMethods.UIA_IsTableItemPatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)
@@ -2874,6 +2881,20 @@ namespace System.Windows.Forms
             internal override int Column => _columnIndex;
 
             internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _parentAccessibleObject.Parent;
+
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[5];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = Parent.Parent.GetChildId();
+                    runtimeId[3] = Parent.GetChildId();
+                    runtimeId[4] = GetChildId();
+                    return runtimeId;
+                }
+            }
         }
 
         /// <summary>
@@ -2920,6 +2941,18 @@ namespace System.Windows.Forms
                 int y = (rectangle.bottom - rectangle.top) / 2;
                 _calendarAccessibleObject.RaiseMouseClick(new MouseEventArgs(MouseButtons.Left, 1, x, y, 0));
             }
+
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[3];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = GetChildId();
+                    return runtimeId;
+                }
+            }
         }
 
         /// <summary>
@@ -2942,10 +2975,14 @@ namespace System.Windows.Forms
 
         internal class CalendarHeaderAccessibleObject : CalendarChildAccessibleObject
         {
+            private int _childId = 3;
+
             public CalendarHeaderAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
                 : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarHeader)
             {
             }
+
+            internal override int GetChildId() => _childId;
 
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
@@ -3036,12 +3073,16 @@ namespace System.Windows.Forms
 
         internal class CalendarPreviousButtonAccessibleObject : CalendarButtonAccessibleObject
         {
+            private int _childId = 1;
+
             public CalendarPreviousButtonAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
                 : base(calendarAccessibleObject, calendarIndex, CalendarButtonType.Previous)
             {
             }
 
             protected override CalendarButtonType ButtonType => CalendarButtonType.Previous;
+
+            internal override int GetChildId() => _childId;
 
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
@@ -3063,12 +3104,16 @@ namespace System.Windows.Forms
 
         internal class CalendarNextButtonAccessibleObject : CalendarButtonAccessibleObject
         {
+            private int _childId = 2;
+
             public CalendarNextButtonAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex)
                 : base(calendarAccessibleObject, calendarIndex, CalendarButtonType.Next)
             {
             }
 
             protected override CalendarButtonType ButtonType => CalendarButtonType.Next;
+
+            internal override int GetChildId() => _childId;
 
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
@@ -3105,6 +3150,8 @@ namespace System.Windows.Forms
                 return calendarPartRectangle;
             }
 
+            internal override int GetChildId() => _rowIndex + 1;
+
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
                 direction switch
                 {
@@ -3118,10 +3165,25 @@ namespace System.Windows.Forms
                 };
 
             public int RowIndex => _rowIndex;
+
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[4];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = Parent.GetChildId();
+                    runtimeId[3] = GetChildId();
+                    return runtimeId;
+                }
+            }
         }
 
         internal class CalendarTodayLinkAccessibleObject : CalendarChildAccessibleObject
         {
+            private int _childId = 5;
+
             public CalendarTodayLinkAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, CalendarChildType type)
                 : base(calendarAccessibleObject, calendarIndex, CalendarChildType.TodayLink)
             {
@@ -3132,6 +3194,8 @@ namespace System.Windows.Forms
                 _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_FOOTER, -1, -1, out RECT calendarPartRectangle);
                 return calendarPartRectangle;
             }
+
+            internal override int GetChildId() => _childId;
 
             internal override bool IsPatternSupported(int patternId)
             {
@@ -3174,6 +3238,7 @@ namespace System.Windows.Forms
 
             private readonly MonthCalendar _owner;
             private int _calendarIndex = 0;
+            private AccessibleObject _focused;
 
             public MonthCalendarAccessibleObject(Control owner)
                 : base(owner)
@@ -3229,6 +3294,10 @@ namespace System.Windows.Forms
 
                 return base.FragmentNavigate(direction);
             }
+
+            internal override UnsafeNativeMethods.IRawElementProviderFragment GetFocus() => _focused;
+
+            public override AccessibleObject GetFocused() => _focused;
 
             public NativeMethods.MCHITTESTINFO_V6 GetHitTestInfo(int xScreen, int yScreen)
             {
@@ -3625,6 +3694,11 @@ namespace System.Windows.Forms
                 if (calendarChildAccessibleObject != null)
                 {
                     calendarChildAccessibleObject.RaiseAutomationEvent(automationEventId);
+
+                    if (automationEventId == NativeMethods.UIA_AutomationFocusChangedEventId)
+                    {
+                        _focused = calendarChildAccessibleObject;
+                    }
                 }
             }
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Target Name="ResolveMatchingPreviousReleaseContract">
+    <Error Condition="!Exists('$(WindowsDesktopReferencePath)')" Text="Error, failed to restore '$(WindowsDesktopReferencePath)'" />
+    <!-- if this library has a matching name in the windowsdesktop reference pack, set that as 
+            the Resolved Matching Previous Release contract to be used by PreviousReleaseAPICompat. -->
+    <ItemGroup>
+      <ResolvedMatchingPreviousReleaseContract Condition="Exists('$(WindowsDesktopReferencePath)$(AssemblyName).dll')" Include="$(WindowsDesktopReferencePath)$(AssemblyName).dll" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <RunApiCompatAgainstPreviousReleaseForSrc Condition="!Exists('@(ResolvedMatchingPreviousReleaseContract)')">false</RunApiCompatAgainstPreviousReleaseForSrc>
+    </PropertyGroup>
+  </Target>
+</Project>

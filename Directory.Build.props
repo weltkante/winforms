@@ -4,7 +4,7 @@
   <Import Project="$(RepositoryEngineeringDir)CodeStyle.props" />  
   <Import Project="$(RepositoryEngineeringDir)FacadeAssemblies.props" />
   <Import Project="$(RepositoryEngineeringDir)ApiCompatability\DesktopApiCompat.props" />
-
+  <Import Project="$(RepositoryEngineeringDir)ApiCompatability\PreviousReleaseApiCompat.props" />
   <PropertyGroup>
     <Product>Microsoft&#xAE; .NET</Product>
     <Copyright>$(CopyrightNetFoundation)</Copyright>
@@ -35,6 +35,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <WindowsDesktopReferencePath>$(NuGetPackageRoot)microsoft.windowsdesktop.app.ref\$(MicrosoftWindowsDesktopAppRefPackageVersion)\ref\netcoreapp3.0\</WindowsDesktopReferencePath>
     <DesktopReferencePath>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2\$(MicrosoftTargetingPackNETFrameworkv472PackageVersion)\lib\net472\</DesktopReferencePath>
   </PropertyGroup>
 

@@ -9,7 +9,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-      <RunApiCompatAgainstPreviousReleaseForSrc Condition="!Exists('@(ResolvedMatchingPreviousReleaseContract)')">false</RunApiCompatAgainstPreviousReleaseForSrc>
+      <RunPreviousReleaseApiCompatForSrc Condition="!Exists('@(ResolvedMatchingPreviousReleaseContract)')">false</RunPreviousReleaseApiCompatForSrc>
     </PropertyGroup>
   </Target>
 </Project>

@@ -2352,6 +2352,9 @@ namespace System.Windows.Forms
             AccessibilityNotifyClients(AccessibleEvents.NameChange, -1);
             AccessibilityNotifyClients(AccessibleEvents.ValueChange, -1);
 
+            MonthCalendarAccessibleObject _calendarAccessibleObject = (MonthCalendarAccessibleObject)AccessibilityObject;
+            _calendarAccessibleObject.RaiseAutomationEventForChild(NativeMethods.UIA_AutomationFocusChangedEventId, selectionStart, selectionEnd);
+
             //subhag
             if (start.Ticks < minDate.Ticks || end.Ticks < minDate.Ticks)
             {
@@ -3602,7 +3605,8 @@ namespace System.Windows.Forms
 
             internal override bool IsPatternSupported(int patternId)
             {
-                if (patternId == NativeMethods.UIA_LegacyIAccessiblePatternId)
+                if (patternId == NativeMethods.UIA_ValuePatternId ||
+                    patternId == NativeMethods.UIA_LegacyIAccessiblePatternId)
                 {
                     return true;
                 }
@@ -3613,6 +3617,60 @@ namespace System.Windows.Forms
             public void RaiseMouseClick(MouseEventArgs mouseEventArgs)
             {
                 _owner.RaiseMouseClick(mouseEventArgs);
+            }
+
+            public void RaiseAutomationEventForChild(int automationEventId, DateTime selectionStart, DateTime selectionEnd)
+            {
+                AccessibleObject calendarChildAccessibleObject = GetCalendarChildAccessibleObject(selectionStart, selectionEnd);
+                if (calendarChildAccessibleObject != null)
+                {
+                    calendarChildAccessibleObject.RaiseAutomationEvent(automationEventId);
+                }
+            }
+
+            private AccessibleObject GetCalendarChildAccessibleObject(DateTime selectionStart, DateTime selectionEnd)
+            {
+                int columnCount = ColumnCount;
+
+                AccessibleObject bodyAccessibleObject = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody);
+                for (int row = 0; row < RowCount; row++)
+                {
+                    AccessibleObject rowAccessibleObject = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, bodyAccessibleObject, row);
+                    for (int column = 0; column < columnCount; column++)
+                    {
+                        bool success = GetCalendarGridInfo(
+                            NativeMethods.MCGIF_DATE,
+                            NativeMethods.MCGIP_CALENDARCELL,
+                            _calendarIndex,
+                            row,
+                            column,
+                            out RECT calendarPartRectangle,
+                            out NativeMethods.SYSTEMTIME systemEndDate,
+                            out NativeMethods.SYSTEMTIME systemStartDate);
+
+                        if (!success)
+                        {
+                            continue;
+                        }
+
+                        AccessibleObject cellAccessibleObject = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, rowAccessibleObject, column);
+                        if (cellAccessibleObject == null)
+                        {
+                            continue;
+                        }
+
+                        DateTime endDate = DateTimePicker.SysTimeToDateTime(systemEndDate).Date;
+                        DateTime startDate = DateTimePicker.SysTimeToDateTime(systemStartDate).Date;
+
+                        if (DateTime.Compare(endDate, selectionEnd) <= 0 &&
+                            DateTime.Compare(startDate, selectionStart) >= 0)
+                        {
+                            return cellAccessibleObject;
+                        }
+                    }
+                }
+
+                return null;
             }
 
             internal override int ColumnCount
@@ -3644,7 +3702,7 @@ namespace System.Windows.Forms
                             out startDate);
 
                         // Out of the body, so this is out of the grid column.
-                        if (calendarPartRectangle.left <= calendarBodyRectangle.right)
+                        if (calendarPartRectangle.right > calendarBodyRectangle.right)
                         {
                             break;
                         }
@@ -3685,7 +3743,7 @@ namespace System.Windows.Forms
                             out startDate);
 
                         // Out of the body, so this is out of the grid row.
-                        if (calendarPartRectangle.top <= calendarBodyRectangle.bottom)
+                        if (calendarPartRectangle.bottom > calendarBodyRectangle.bottom)
                         {
                             break;
                         }

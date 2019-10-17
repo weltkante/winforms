@@ -3538,16 +3538,20 @@ namespace System.Windows.Forms
 
             private bool GetCalendarGridInfoText(uint dwPart, int calendarIndex, int row, int column, out string text)
             {
+                const int nameLength = 128;
+
                 NativeMethods.MCGRIDINFO gridInfo = new NativeMethods.MCGRIDINFO();
                 gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
                 gridInfo.dwPart = dwPart;
                 gridInfo.iCalendar = calendarIndex;
                 gridInfo.iCol = column;
                 gridInfo.iRow = row;
-                gridInfo.pszName = new String(""); // Specify not null value to allow writing new value in native code by field address.
-                gridInfo.cchName = 128; // Const value.
+                gridInfo.pszName = new string('\0', nameLength + 2);
+                gridInfo.cchName = (uint)gridInfo.pszName.Length - 1;
+
                 bool result = GetCalendarGridInfoText(ref gridInfo);
                 text = gridInfo.pszName;
+
                 return result;
             }
 

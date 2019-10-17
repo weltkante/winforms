@@ -923,10 +923,7 @@ namespace System.Windows.Forms
             public SYSTEMTIME stStart;
             public SYSTEMTIME stEnd;
             public Interop.RECT rc;
-
-            [MarshalAs(UnmanagedType.LPWStr)]
             public string pszName;
-
             public uint cchName;
         }
 

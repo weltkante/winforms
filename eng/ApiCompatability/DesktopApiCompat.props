@@ -17,7 +17,7 @@
     <RunApiCompatForSrc>true</RunApiCompatForSrc>
     <RunMatchingRefApiCompat>false</RunMatchingRefApiCompat>
     <DesktopAPICompatLeftOperand>"classic desktop framework"</DesktopAPICompatLeftOperand>
-    <DesktopAPICompatRightOperand>"latest implementation"</DesktopAPICompatRightOperand>
+    <DesktopAPICompatRightOperand>".NET Core 3.0 implementation"</DesktopAPICompatRightOperand>
     <ApiCompatArgs>$(ApiCompatArgs) --left-operand $(DesktopAPICompatLeftOperand) --right-operand $(DesktopAPICompatRightOperand)</ApiCompatArgs>
   </PropertyGroup>
 

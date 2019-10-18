@@ -2707,8 +2707,11 @@ namespace System.Windows.Forms
                     })(),
                     UnsafeNativeMethods.NavigateDirection.PreviousSibling => _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarHeader),
                     UnsafeNativeMethods.NavigateDirection.FirstChild =>
-                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, _calendarAccessibleObject.HasHeaderRow ? -1 : 0),
-                    _ => base.FragmentNavigate(direction)
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, _calendarAccessibleObject.HasHeaderRow ? -1 : 0),
+                    UnsafeNativeMethods.NavigateDirection.LastChild =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, _calendarAccessibleObject.RowCount - 1),
+                    _ => base.FragmentNavigate(direction),
+
                 };
 
             public CalendarChildAccessibleObject GetFromPoint(NativeMethods.MCHITTESTINFO_V6 hitTestInfo)
@@ -2753,42 +2756,13 @@ namespace System.Windows.Forms
                 return null;
             }
 
-            internal override UnsafeNativeMethods.RowOrColumnMajor RowOrColumnMajor => UnsafeNativeMethods.RowOrColumnMajor.RowOrColumnMajor_RowMajor;
+            internal override UnsafeNativeMethods.RowOrColumnMajor RowOrColumnMajor => _calendarAccessibleObject.RowOrColumnMajor;
 
-            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => _calendarAccessibleObject.GetRowHeaderItems();
 
-            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems()
-            {
-                if (!_calendarAccessibleObject.HasHeaderRow)
-                {
-                    return null;
-                }
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems() => _calendarAccessibleObject.GetColumnHeaderItems();
 
-                UnsafeNativeMethods.IRawElementProviderSimple[] headers =
-                    new UnsafeNativeMethods.IRawElementProviderSimple[MonthCalendarAccessibleObject.MAX_DAYS];
-                AccessibleObject headerRowAccessibleObject =
-                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, -1);
-
-                for (int columnIndex = 0; columnIndex < MonthCalendarAccessibleObject.MAX_DAYS; columnIndex++)
-                {
-                    headers[columnIndex] = _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, headerRowAccessibleObject, columnIndex);
-                }
-
-                return headers;
-            }
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column)
-            {
-                AccessibleObject rowAccessibleObject =
-                    _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, row);
-
-                if (rowAccessibleObject == null)
-                {
-                    return null;
-                }
-
-                return _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, rowAccessibleObject, column);
-            }
+            internal override UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column) => _calendarAccessibleObject.GetItem(row, column);
 
             internal override int RowCount => _calendarAccessibleObject.RowCount;
 
@@ -2802,12 +2776,14 @@ namespace System.Windows.Forms
         {
             private int _rowIndex;
             private int _columnIndex;
+            private string _name;
 
-            public CalendarCellAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex, int columnIndex)
+            public CalendarCellAccessibleObject(MonthCalendarAccessibleObject calendarAccessibleObject, int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex, int columnIndex, string name)
                 : base(calendarAccessibleObject, calendarIndex, CalendarChildType.CalendarCell, parentAccessibleObject, rowIndex * columnIndex)
             {
                 _rowIndex = rowIndex;
                 _columnIndex = columnIndex;
+                _name = name;
             }
 
             protected override RECT CalculateBoundingRectangle()
@@ -2857,7 +2833,7 @@ namespace System.Windows.Forms
                 RaiseMouseClick();
             }
 
-            public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarCell, _parentAccessibleObject, _columnIndex);
+            public override string Name => _name;
 
             internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
 
@@ -3161,6 +3137,8 @@ namespace System.Windows.Forms
                         _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, _parentAccessibleObject, _rowIndex - 1),
                     UnsafeNativeMethods.NavigateDirection.FirstChild =>
                         _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, this, 0),
+                    UnsafeNativeMethods.NavigateDirection.LastChild =>
+                        _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, this, _calendarAccessibleObject.ColumnCount - 1),
                     _ => base.FragmentNavigate(direction)
                 };
 
@@ -3178,6 +3156,9 @@ namespace System.Windows.Forms
                     return runtimeId;
                 }
             }
+
+            // Note: it is not clear whether we need the row names as these are meaningful only for weeks.
+            // public override string Name => _rowIndex >= 0 ? string.Format("Week {0}", _rowIndex) : string.Empty;
         }
 
         internal class CalendarTodayLinkAccessibleObject : CalendarChildAccessibleObject
@@ -3212,7 +3193,7 @@ namespace System.Windows.Forms
                 {
                     NativeMethods.UIA_BoundingRectanglePropertyId => BoundingRectangle,
                     NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
-                    NativeMethods.UIA_NamePropertyId => "Today",
+                    NativeMethods.UIA_NamePropertyId => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.TodayLink),
                     _ => base.GetPropertyValue(propertyID)
                 };
 
@@ -3486,45 +3467,80 @@ namespace System.Windows.Forms
 
             public string GetCalendarChildName(int calendarIndex, CalendarChildType calendarChildType, AccessibleObject parentAccessibleObject = null, int index = -1)
             {
-                string text = string.Empty;
-
-                bool result = calendarChildType switch
+                switch(calendarChildType)
                 {
-                    CalendarChildType.CalendarHeader => GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out text),
-                    CalendarChildType.CalendarCell =>
-                        GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, ((CalendarRowAccessibleObject)parentAccessibleObject).RowIndex, index, out text),
-                    _ => false
+                    case CalendarChildType.CalendarHeader:
+                        GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out string text);
+                        return text;
+                    case CalendarChildType.TodayLink:
+                        return string.Format("Today: {0}", _owner.TodayDate.ToShortDateString());
                 };
 
-                if (!result)
-                {
-                    return string.Empty;
-                }
-
-                return text;
+                return string.Empty;
             }
 
             private CalendarCellAccessibleObject GetCalendarCell(int calendarIndex, AccessibleObject parentAccessibleObject, int columnIndex)
             {
-                if (columnIndex >= MAX_DAYS)
+                if (columnIndex < 0 || 
+                    columnIndex >= MAX_DAYS ||
+                    columnIndex >= ColumnCount)
                 {
                     return null;
                 }
 
                 CalendarRowAccessibleObject parentRowAccessibleObject = (CalendarRowAccessibleObject)parentAccessibleObject;
                 int rowIndex = parentRowAccessibleObject.RowIndex;
-                bool result = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
-                if (result && !string.IsNullOrEmpty(text))
+                bool getNameResult = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
+                bool getDateResult = GetCalendarGridInfo(NativeMethods.MCGIF_DATE, NativeMethods.MCGIP_CALENDARCELL,
+                    calendarIndex,
+                    rowIndex,
+                    columnIndex,
+                    out RECT rectangle,
+                    out NativeMethods.SYSTEMTIME systemEndDate,
+                    out NativeMethods.SYSTEMTIME systemStartDate);
+
+                DateTime endDate = DateTimePicker.SysTimeToDateTime(systemEndDate).Date;
+                DateTime startDate = DateTimePicker.SysTimeToDateTime(systemStartDate).Date;
+
+                if (getNameResult && !string.IsNullOrEmpty(text))
                 {
+                    string cellName = GetCalendarCellName(endDate, startDate, text, rowIndex == -1);
+
                     // The cell is present on the calendar, so create accessible object for it.
-                    return new CalendarCellAccessibleObject(this, calendarIndex, parentAccessibleObject, rowIndex, columnIndex);
+                    return new CalendarCellAccessibleObject(this, calendarIndex, parentAccessibleObject, rowIndex, columnIndex, cellName);
                 }
 
                 return null;
             }
 
+            private string GetCalendarCellName(DateTime endDate, DateTime startDate, string defaultName, bool headerCell)
+            {
+                TimeSpan dateSpan = endDate - startDate;
+
+                if (headerCell)
+                {
+                    return startDate.ToString(("dddd"));
+                }
+                else if (dateSpan.TotalDays == 0)
+                {
+                    return startDate.ToString(("dddd, MMMM dd, yyyy"));
+                }
+                else if (dateSpan.TotalDays > 1 && dateSpan.TotalDays < 32)
+                {
+                    return startDate.ToString(("MMMM yyyy"));
+                }
+
+                return defaultName;
+            }
+
             private CalendarRowAccessibleObject GetCalendarRow(int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex)
             {
+                if (HasHeaderRow ? rowIndex < -1 : rowIndex < 0 &&
+                    rowIndex >= RowCount)
+                {
+                    return null;
+                }
+
                 // Search name for the first cell in the row.
                 bool success = GetCalendarGridInfo(
                     NativeMethods.MCGIF_DATE,
@@ -3668,6 +3684,8 @@ namespace System.Windows.Forms
                 {
                     NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_CalendarControlTypeId,
                     NativeMethods.UIA_NamePropertyId => Name,
+                    NativeMethods.UIA_IsGridPatternAvailablePropertyId => true,
+                    NativeMethods.UIA_IsTablePatternAvailablePropertyId => true,
                     NativeMethods.UIA_IsLegacyIAccessiblePatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)
                 };
@@ -3675,6 +3693,8 @@ namespace System.Windows.Forms
             internal override bool IsPatternSupported(int patternId)
             {
                 if (patternId == NativeMethods.UIA_ValuePatternId ||
+                    patternId == NativeMethods.UIA_GridPatternId ||
+                    patternId == NativeMethods.UIA_TablePatternId ||
                     patternId == NativeMethods.UIA_LegacyIAccessiblePatternId)
                 {
                     return true;
@@ -3733,11 +3753,11 @@ namespace System.Windows.Forms
                             continue;
                         }
 
-                        DateTime endDate = DateTimePicker.SysTimeToDateTime(systemEndDate).Date;
-                        DateTime startDate = DateTimePicker.SysTimeToDateTime(systemStartDate).Date;
+                        DateTime endDate = DateTimePicker.SysTimeToDateTime(systemEndDate);
+                        DateTime startDate = DateTimePicker.SysTimeToDateTime(systemStartDate);
 
-                        if (DateTime.Compare(endDate, selectionEnd) <= 0 &&
-                            DateTime.Compare(startDate, selectionStart) >= 0)
+                        if (DateTime.Compare(selectionEnd, endDate) <= 0 &&
+                            DateTime.Compare(selectionStart, startDate) >= 0)
                         {
                             return cellAccessibleObject;
                         }
@@ -3745,6 +3765,45 @@ namespace System.Windows.Forms
                 }
 
                 return null;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaders()
+            {
+                return null;
+            }
+
+            internal override UnsafeNativeMethods.RowOrColumnMajor RowOrColumnMajor => UnsafeNativeMethods.RowOrColumnMajor.RowOrColumnMajor_RowMajor;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems()
+            {
+                if (!HasHeaderRow)
+                {
+                    return null;
+                }
+
+                UnsafeNativeMethods.IRawElementProviderSimple[] headers =
+                    new UnsafeNativeMethods.IRawElementProviderSimple[MonthCalendarAccessibleObject.MAX_DAYS];
+                AccessibleObject headerRowAccessibleObject = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, -1);
+                for (int columnIndex = 0; columnIndex < MonthCalendarAccessibleObject.MAX_DAYS; columnIndex++)
+                {
+                    headers[columnIndex] = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, headerRowAccessibleObject, columnIndex);
+                }
+
+                return headers;
+            }
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column)
+            {
+                AccessibleObject rowAccessibleObject = GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarRow, this, row);
+
+                if (rowAccessibleObject == null)
+                {
+                    return null;
+                }
+
+                return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, rowAccessibleObject, column);
             }
 
             internal override int ColumnCount

@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <WindowsDesktopReferencePath>$(NuGetPackageRoot)microsoft.windowsdesktop.app.ref\$(MicrosoftWindowsDesktopAppRefPackageVersion)\ref\netcoreapp3.0\</WindowsDesktopReferencePath>
+    <StableApiProject>$(RepositoryEngineeringDir)ApiCompatability\WinFormsStableAPIProject\WinFormsStableAPIProject.csproj</StableApiProject>
     <DesktopReferencePath>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2\$(MicrosoftTargetingPackNETFrameworkv472PackageVersion)\lib\net472\</DesktopReferencePath>
   </PropertyGroup>
 

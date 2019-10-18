@@ -3,6 +3,5 @@
   <!-- This file will be automatically included by Arcade if it exists-->
   <ItemGroup>
     <PackageDownload Include="Microsoft.TargetingPack.NETFramework.v4.7.2" Version="[$(MicrosoftTargetingPackNETFrameworkv472PackageVersion)]" />
-    <PackageDownload Include="Microsoft.WindowsDesktop.App.Ref" Version="[$(MicrosoftWindowsDesktopAppRefPackageVersion)]" />
   </ItemGroup>
 </Project>

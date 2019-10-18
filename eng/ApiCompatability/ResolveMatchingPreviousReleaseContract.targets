@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <Target Name="ResolveMatchingPreviousReleaseContract" BeforeTargets="ResolveAssemblyReferences">
-    <Error Condition="!Exists('$(WindowsDesktopReferencePath)')" Text="Error, failed to restore '$(WindowsDesktopReferencePath)'" />
-    <!-- if this library has a matching name in the windowsdesktop reference pack, set that as 
-            the Resolved Matching Previous Release contract to be used by PreviousReleaseAPICompat. -->   
-    <ItemGroup>
-      <ResolvedMatchingPreviousReleaseContract Condition="Exists('$(WindowsDesktopReferencePath)$(AssemblyName).dll')" Include="$(WindowsDesktopReferencePath)$(AssemblyName).dll" />
-    </ItemGroup>
-
+    <Error Condition="!Exists('$(StableApiProject)')" Text="Error, failed to locate '$(StableApiProject)'" />
+    <MSBuild Projects="$(StableApiProject)"
+             Targets="GetContract"
+             Properties="ContractName=$(AssemblyName);TargetFramework=$(TargetFramework)">
+      <Output TaskParameter="TargetOutputs" ItemName="ResolveMatchingPreviousReleaseContract"/>
+    </MSBuild>
     <PropertyGroup>
-      <RunPreviousReleaseApiCompatForSrc Condition="!Exists('@(ResolvedMatchingPreviousReleaseContract)')">false</RunPreviousReleaseApiCompatForSrc>
+      <ContractOutputPath>%(ResolveMatchingPreviousReleaseContract.DependencyPaths)</ContractOutputPath>
+    </PropertyGroup>
+    <PropertyGroup>
+      <RunPreviousReleaseApiCompatForSrc Condition="!Exists('@(ContractOutputPath)')">false</RunPreviousReleaseApiCompatForSrc>
     </PropertyGroup>
   </Target>
 </Project>

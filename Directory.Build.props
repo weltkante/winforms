@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <StableApiProject>$(RepositoryEngineeringDir)ApiCompatability\WinFormsStableAPIProject\WinFormsStableAPIProject.csproj</StableApiProject>
+    <PreviousReleaseStableApiProject>$(RepositoryEngineeringDir)ApiCompatability\WinFormsStableAPIProject\WinFormsStableAPIProject.csproj</PreviousReleaseStableApiProject>
     <DesktopReferencePath>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2\$(MicrosoftTargetingPackNETFrameworkv472PackageVersion)\lib\net472\</DesktopReferencePath>
   </PropertyGroup>
 

@@ -95,7 +95,7 @@ namespace System.Windows.Forms
 
             internal override int Column => _columnIndex;
 
-            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _parentAccessibleObject.Parent;
+            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _calendarAccessibleObject;
 
             internal override int[] RuntimeId
             {

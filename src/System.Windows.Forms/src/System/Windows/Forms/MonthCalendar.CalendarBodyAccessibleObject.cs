@@ -64,40 +64,11 @@ namespace System.Windows.Forms
             internal override object GetPropertyValue(int propertyID) =>
                 propertyID switch
                 {
-                    NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_TableControlTypeId,
                     NativeMethods.UIA_NamePropertyId => "Calendar body",
                     NativeMethods.UIA_IsGridPatternAvailablePropertyId => true,
                     NativeMethods.UIA_IsTablePatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)
                 };
-
-            internal override bool IsPatternSupported(int patternId)
-            {
-                if (patternId == NativeMethods.UIA_GridPatternId ||
-                    patternId == NativeMethods.UIA_TablePatternId)
-                {
-                    return true;
-                }
-
-                return base.IsPatternSupported(patternId);
-            }
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaders()
-            {
-                return null;
-            }
-
-            internal override UnsafeNativeMethods.RowOrColumnMajor RowOrColumnMajor => _calendarAccessibleObject.RowOrColumnMajor;
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => _calendarAccessibleObject.GetRowHeaderItems();
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetColumnHeaderItems() => _calendarAccessibleObject.GetColumnHeaderItems();
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column) => _calendarAccessibleObject.GetItem(row, column);
-
-            internal override int RowCount => _calendarAccessibleObject.RowCount;
-
-            internal override int ColumnCount => _calendarAccessibleObject.ColumnCount;
         }
     }
 }

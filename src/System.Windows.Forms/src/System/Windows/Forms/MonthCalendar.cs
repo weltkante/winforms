@@ -2993,7 +2993,7 @@ namespace System.Windows.Forms
 
             private CalendarRowAccessibleObject GetCalendarRow(int calendarIndex, AccessibleObject parentAccessibleObject, int rowIndex)
             {
-                if (HasHeaderRow ? rowIndex < -1 : rowIndex < 0 &&
+                if ((HasHeaderRow ? rowIndex < -1 : rowIndex < 0) ||
                     rowIndex >= RowCount)
                 {
                     return null;

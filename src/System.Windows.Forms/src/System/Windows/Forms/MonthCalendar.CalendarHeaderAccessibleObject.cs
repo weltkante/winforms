@@ -38,7 +38,7 @@ namespace System.Windows.Forms
 
             protected override RECT CalculateBoundingRectangle()
             {
-                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, NativeMethods.MCGIP_CALENDARHEADER, -1, -1, out RECT rectangle);
+                _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, Interop.MonthCalendar.Part.MCGIP_CALENDARHEADER, -1, -1, out RECT rectangle);
                 return rectangle;
             }
 

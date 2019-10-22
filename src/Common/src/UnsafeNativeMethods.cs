@@ -616,10 +616,10 @@ namespace System.Windows.Forms
         public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, IntPtr lParam, int flags, int timeout, out IntPtr pdwResult);
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
-        public extern static IntPtr SendMessage(HandleRef hWnd, int Msg, int wParam, [In, Out] ref NativeMethods.MCGRIDINFO gridInfo);
+        public extern static IntPtr SendMessage(HandleRef hWnd, int Msg, int wParam, [In, Out] ref Interop.MonthCalendar.MCGRIDINFO gridInfo);
 
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, [In, Out] ref NativeMethods.MCGRIDINFO gridInfo, int flags, int timeout, out IntPtr pdwResult);
+        public static extern IntPtr SendMessageTimeout(HandleRef hWnd, int msg, IntPtr wParam, [In, Out] ref Interop.MonthCalendar.MCGRIDINFO gridInfo, int flags, int timeout, out IntPtr pdwResult);
 
         public const int SMTO_ABORTIFHUNG = 0x0002;
 

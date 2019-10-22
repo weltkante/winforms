@@ -221,7 +221,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarForeColor))
                 {
                     calendarForeColor = value;
-                    SetControlColor(NativeMethods.MCSC_TEXT, value);
+                    SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, value);
                 }
             }
         }
@@ -300,7 +300,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarTitleBackColor))
                 {
                     calendarTitleBackColor = value;
-                    SetControlColor(NativeMethods.MCSC_TITLEBK, value);
+                    SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, value);
                 }
             }
         }
@@ -329,7 +329,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarTitleForeColor))
                 {
                     calendarTitleForeColor = value;
-                    SetControlColor(NativeMethods.MCSC_TITLETEXT, value);
+                    SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, value);
                 }
             }
         }
@@ -358,7 +358,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarTrailingText))
                 {
                     calendarTrailingText = value;
-                    SetControlColor(NativeMethods.MCSC_TRAILINGTEXT, value);
+                    SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, value);
                 }
             }
         }
@@ -387,7 +387,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarMonthBackground))
                 {
                     calendarMonthBackground = value;
-                    SetControlColor(NativeMethods.MCSC_MONTHBK, value);
+                    SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, value);
                 }
             }
         }
@@ -1425,11 +1425,11 @@ namespace System.Windows.Forms
         /// </summary>
         private void SetAllControlColors()
         {
-            SetControlColor(NativeMethods.MCSC_MONTHBK, calendarMonthBackground);
-            SetControlColor(NativeMethods.MCSC_TEXT, calendarForeColor);
-            SetControlColor(NativeMethods.MCSC_TITLEBK, calendarTitleBackColor);
-            SetControlColor(NativeMethods.MCSC_TITLETEXT, calendarTitleForeColor);
-            SetControlColor(NativeMethods.MCSC_TRAILINGTEXT, calendarTrailingText);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, calendarMonthBackground);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, calendarForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, calendarTitleBackColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, calendarTitleForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, calendarTrailingText);
         }
 
         /// <summary>

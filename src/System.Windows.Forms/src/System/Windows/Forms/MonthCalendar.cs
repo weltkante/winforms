@@ -366,20 +366,20 @@ namespace System.Windows.Forms
             {
                 CreateParams cp = base.CreateParams;
                 cp.ClassName = NativeMethods.WC_MONTHCAL;
-                cp.Style |= NativeMethods.MCS_MULTISELECT | NativeMethods.MCS_DAYSTATE;
+                cp.Style |= Interop.MonthCalendar.Styles.MCS_MULTISELECT | Interop.MonthCalendar.Styles.MCS_DAYSTATE;
                 if (!showToday)
                 {
-                    cp.Style |= NativeMethods.MCS_NOTODAY;
+                    cp.Style |= Interop.MonthCalendar.Styles.MCS_NOTODAY;
                 }
 
                 if (!showTodayCircle)
                 {
-                    cp.Style |= NativeMethods.MCS_NOTODAYCIRCLE;
+                    cp.Style |= Interop.MonthCalendar.Styles.MCS_NOTODAYCIRCLE;
                 }
 
                 if (showWeekNumbers)
                 {
-                    cp.Style |= NativeMethods.MCS_WEEKNUMBERS;
+                    cp.Style |= Interop.MonthCalendar.Styles.MCS_WEEKNUMBERS;
                 }
 
                 if (RightToLeft == RightToLeft.Yes && RightToLeftLayout == true)
@@ -467,7 +467,7 @@ namespace System.Windows.Forms
                         }
                         else
                         {
-                            SendMessage(NativeMethods.MCM_SETFIRSTDAYOFWEEK, 0, (int)value);
+                            SendMessage(Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, (int)value);
                         }
                     }
                 }
@@ -570,7 +570,7 @@ namespace System.Windows.Forms
                 {
                     if (IsHandleCreated)
                     {
-                        if (unchecked((int)(long)SendMessage(NativeMethods.MCM_SETMAXSELCOUNT, value, 0)) == 0)
+                        if (unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, value, 0)) == 0)
                         {
                             throw new ArgumentException(string.Format(SR.MonthCalendarMaxSelCount, value.ToString("D")), nameof(value));
                         }
@@ -758,7 +758,7 @@ namespace System.Windows.Forms
 
                     if (IsHandleCreated)
                     {
-                        SendMessage(NativeMethods.MCM_SETMONTHDELTA, value, 0);
+                        SendMessage(Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, value, 0);
                     }
                     scrollChange = value;
                 }
@@ -983,7 +983,7 @@ namespace System.Windows.Forms
                 if (IsHandleCreated)
                 {
 
-                    if (unchecked((int)(long)SendMessage(NativeMethods.MCM_GETMINREQRECT, 0, ref rect)) == 0)
+                    if (unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_GETMINREQRECT, 0, ref rect)) == 0)
                     {
                         throw new InvalidOperationException(SR.InvalidSingleMonthSize);
                     }
@@ -1059,7 +1059,7 @@ namespace System.Windows.Forms
                 if (IsHandleCreated)
                 {
                     NativeMethods.SYSTEMTIME st = new NativeMethods.SYSTEMTIME();
-                    int res = (int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_GETTODAY, 0, st);
+                    int res = (int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_GETTODAY, 0, st);
                     Debug.Assert(res != 0, "MCM_GETTODAY failed");
                     return DateTimePicker.SysTimeToDateTime(st).Date;
                 }
@@ -1134,7 +1134,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 titleBackColor = value;
-                SetControlColor(NativeMethods.MCSC_TITLEBK, value);
+                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, value);
             }
         }
 
@@ -1160,7 +1160,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 titleForeColor = value;
-                SetControlColor(NativeMethods.MCSC_TITLETEXT, value);
+                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, value);
             }
         }
 
@@ -1186,7 +1186,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 trailingForeColor = value;
-                SetControlColor(NativeMethods.MCSC_TRAILINGTEXT, value);
+                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, value);
             }
         }
 
@@ -1403,29 +1403,29 @@ namespace System.Windows.Forms
         {
             switch (hit)
             {
-                case NativeMethods.MCHT_TITLEBK:
+                case Interop.MonthCalendar.HitTest.MCHT_TITLEBK:
                     return HitArea.TitleBackground;
-                case NativeMethods.MCHT_TITLEMONTH:
+                case Interop.MonthCalendar.HitTest.MCHT_TITLEMONTH:
                     return HitArea.TitleMonth;
-                case NativeMethods.MCHT_TITLEYEAR:
+                case Interop.MonthCalendar.HitTest.MCHT_TITLEYEAR:
                     return HitArea.TitleYear;
-                case NativeMethods.MCHT_TITLEBTNNEXT:
+                case Interop.MonthCalendar.HitTest.MCHT_TITLEBTNNEXT:
                     return HitArea.NextMonthButton;
-                case NativeMethods.MCHT_TITLEBTNPREV:
+                case Interop.MonthCalendar.HitTest.MCHT_TITLEBTNPREV:
                     return HitArea.PrevMonthButton;
-                case NativeMethods.MCHT_CALENDARBK:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARBK:
                     return HitArea.CalendarBackground;
-                case NativeMethods.MCHT_CALENDARDATE:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARDATE:
                     return HitArea.Date;
-                case NativeMethods.MCHT_CALENDARDATENEXT:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARDATENEXT:
                     return HitArea.NextMonthDate;
-                case NativeMethods.MCHT_CALENDARDATEPREV:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARDATEPREV:
                     return HitArea.PrevMonthDate;
-                case NativeMethods.MCHT_CALENDARDAY:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARDAY:
                     return HitArea.DayOfWeek;
-                case NativeMethods.MCHT_CALENDARWEEKNUM:
+                case Interop.MonthCalendar.HitTest.MCHT_CALENDARWEEKNUM:
                     return HitArea.WeekNumbers;
-                case NativeMethods.MCHT_TODAYLINK:
+                case Interop.MonthCalendar.HitTest.MCHT_TODAYLINK:
                     return HitArea.TodayLink;
                 default:
                     return HitArea.Nowhere;
@@ -1442,9 +1442,10 @@ namespace System.Windows.Forms
 
         /// <summary>
         ///  Used internally to get the minimum size needed to display the
-        ///  MonthCalendar.  This is needed because
-        ///  NativeMethods.MCM_GETMINREQRECT returns an incorrect value if showToday
-        ///  is set to false.  If updateRows is true, then the
+        ///  MonthCalendar. This is needed because
+        ///  Interop.MonthCalendar.Messages.MCM_GETMINREQRECT
+        ///  returns an incorrect value if showToday
+        ///  is set to false. If updateRows is true, then the
         ///  number of rows will be updated according to height.
         /// </summary>
         private Size GetMinReqRect(int newDimensionLength, bool updateRows, bool updateCols)
@@ -1490,7 +1491,7 @@ namespace System.Windows.Forms
             //
             if (IsHandleCreated)
             {
-                int maxTodayWidth = unchecked((int)(long)SendMessage(NativeMethods.MCM_GETMAXTODAYWIDTH, 0, 0));
+                int maxTodayWidth = unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_GETMAXTODAYWIDTH, 0, 0));
                 if (maxTodayWidth > minSize.Width)
                 {
                     minSize.Width = maxTodayWidth;
@@ -1508,7 +1509,7 @@ namespace System.Windows.Forms
         {
             NativeMethods.SYSTEMTIMEARRAY sa = new NativeMethods.SYSTEMTIMEARRAY();
             SelectionRange range = new SelectionRange();
-            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_GETMONTHRANGE, flag, sa);
+            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_GETMONTHRANGE, flag, sa);
 
             NativeMethods.SYSTEMTIME st = new NativeMethods.SYSTEMTIME
             {
@@ -1560,7 +1561,7 @@ namespace System.Windows.Forms
                 pt_y = y,
                 cbSize = Marshal.SizeOf<NativeMethods.MCHITTESTINFO>()
             };
-            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_HITTEST, 0, mchi);
+            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_HITTEST, 0, mchi);
 
             // If the hit area has an associated valid date, get it
             //
@@ -1625,21 +1626,21 @@ namespace System.Windows.Forms
             SetSelRange(selectionStart, selectionEnd);
             if (maxSelectionCount != DEFAULT_MAX_SELECTION_COUNT)
             {
-                SendMessage(NativeMethods.MCM_SETMAXSELCOUNT, maxSelectionCount, 0);
+                SendMessage(Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, maxSelectionCount, 0);
             }
             AdjustSize();
 
             if (todayDateSet)
             {
                 NativeMethods.SYSTEMTIME st = DateTimePicker.DateTimeToSysTime(todayDate);
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_SETTODAY, 0, st);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
             }
 
-            SetControlColor(NativeMethods.MCSC_TEXT, ForeColor);
-            SetControlColor(NativeMethods.MCSC_MONTHBK, BackColor);
-            SetControlColor(NativeMethods.MCSC_TITLEBK, titleBackColor);
-            SetControlColor(NativeMethods.MCSC_TITLETEXT, titleForeColor);
-            SetControlColor(NativeMethods.MCSC_TRAILINGTEXT, trailingForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, titleBackColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, titleForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, trailingForeColor);
 
             int firstDay;
             if (firstDayOfWeek == Day.Default)
@@ -1650,12 +1651,12 @@ namespace System.Windows.Forms
             {
                 firstDay = (int)firstDayOfWeek;
             }
-            SendMessage(NativeMethods.MCM_SETFIRSTDAYOFWEEK, 0, firstDay);
+            SendMessage(Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, firstDay);
 
             SetRange();
             if (scrollChange != DEFAULT_SCROLL_CHANGE)
             {
-                SendMessage(NativeMethods.MCM_SETMONTHDELTA, scrollChange, 0);
+                SendMessage(Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, scrollChange, 0);
             }
 
             SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(MarshaledUserPreferenceChanged);
@@ -1703,13 +1704,13 @@ namespace System.Windows.Forms
         protected override void OnForeColorChanged(EventArgs e)
         {
             base.OnForeColorChanged(e);
-            SetControlColor(NativeMethods.MCSC_TEXT, ForeColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
         }
 
         protected override void OnBackColorChanged(EventArgs e)
         {
             base.OnBackColorChanged(e);
-            SetControlColor(NativeMethods.MCSC_MONTHBK, BackColor);
+            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -1957,7 +1958,7 @@ namespace System.Windows.Forms
         ///  Sends a Win32 message to this control.  If the control does not yet
         ///  have a handle, it will be created.
         /// </summary>
-        internal IntPtr SendMessage(int msg, int wparam, ref NativeMethods.MCGRIDINFO lparam)
+        internal IntPtr SendMessage(int msg, int wparam, ref Interop.MonthCalendar.MCGRIDINFO lparam)
         {
             return UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), msg, wparam, ref lparam);
         }
@@ -2002,7 +2003,7 @@ namespace System.Windows.Forms
         {
             if (IsHandleCreated)
             {
-                SendMessage(NativeMethods.MCM_SETCOLOR, colorIndex, ColorTranslator.ToWin32(value));
+                SendMessage(Interop.MonthCalendar.Messages.MCM_SETCOLOR, colorIndex, ColorTranslator.ToWin32(value));
             }
         }
 
@@ -2055,7 +2056,7 @@ namespace System.Windows.Forms
                 sa.wDayOfWeek2 = sys.wDayOfWeek;
                 sa.wDay2 = sys.wDay;
 
-                if ((int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_SETRANGE, flag, sa) == 0)
+                if ((int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETRANGE, flag, sa) == 0)
                 {
                     throw new InvalidOperationException(string.Format(SR.MonthCalendarRange, minDate.ToShortDateString(), maxDate.ToShortDateString()));
                 }
@@ -2207,7 +2208,7 @@ namespace System.Windows.Forms
                 sa.wMonth2 = sys.wMonth;
                 sa.wDayOfWeek2 = sys.wDayOfWeek;
                 sa.wDay2 = sys.wDay;
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_SETSELRANGE, 0, sa);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETSELRANGE, 0, sa);
             }
 
             if (changed)
@@ -2315,7 +2316,7 @@ namespace System.Windows.Forms
                 {
                     st = DateTimePicker.DateTimeToSysTime(todayDate);
                 }
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_SETTODAY, 0, st);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
             }
         }
 
@@ -2694,25 +2695,25 @@ namespace System.Windows.Forms
                 NativeMethods.MCHITTESTINFO_V6 hitTestInfo = GetHitTestInfo(innerX, innerY);
                 switch (hitTestInfo.uHit)
                 {
-                    case NativeMethods.MCHT_TITLEBTNPREV:
+                    case Interop.MonthCalendar.HitTest.MCHT_TITLEBTNPREV:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
 
-                    case NativeMethods.MCHT_TITLEBTNNEXT:
+                    case Interop.MonthCalendar.HitTest.MCHT_TITLEBTNNEXT:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.NextButton);
 
-                    case NativeMethods.MCHT_TITLE:
-                    case NativeMethods.MCHT_TITLEMONTH:
-                    case NativeMethods.MCHT_TITLEYEAR:
+                    case Interop.MonthCalendar.HitTest.MCHT_TITLE:
+                    case Interop.MonthCalendar.HitTest.MCHT_TITLEMONTH:
+                    case Interop.MonthCalendar.HitTest.MCHT_TITLEYEAR:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarHeader);
 
-                    case NativeMethods.MCHT_CALENDARDAY:
-                    case NativeMethods.MCHT_CALENDARWEEKNUM:
-                    case NativeMethods.MCHT_CALENDARDATE:
+                    case Interop.MonthCalendar.HitTest.MCHT_CALENDARDAY:
+                    case Interop.MonthCalendar.HitTest.MCHT_CALENDARWEEKNUM:
+                    case Interop.MonthCalendar.HitTest.MCHT_CALENDARDATE:
                         // Get calendar body's child.
                         CalendarBodyAccessibleObject calendarBodyAccessibleObject = (CalendarBodyAccessibleObject)GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarBody);
                         return calendarBodyAccessibleObject.GetFromPoint(hitTestInfo);
 
-                    case NativeMethods.MCHT_TODAYLINK:
+                    case Interop.MonthCalendar.HitTest.MCHT_TODAYLINK:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.TodayLink);
                 }
 
@@ -2751,7 +2752,7 @@ namespace System.Windows.Forms
                 hitTestInfo.pt.x = point.X;
                 hitTestInfo.pt.y = point.Y;
 
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), NativeMethods.MCM_HITTEST, 0, ref hitTestInfo);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_HITTEST, 0, ref hitTestInfo);
 
                 return hitTestInfo;
             }
@@ -2760,7 +2761,7 @@ namespace System.Windows.Forms
             {
                 get
                 {
-                    bool result = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, _calendarIndex, -1, 0, out string text);
+                    bool result = GetCalendarGridInfoText(Interop.MonthCalendar.Part.MCGIP_CALENDARCELL, _calendarIndex, -1, 0, out string text);
                     if (!result || string.IsNullOrEmpty(text))
                     {
                         return false;
@@ -2928,7 +2929,7 @@ namespace System.Windows.Forms
                 switch(calendarChildType)
                 {
                     case CalendarChildType.CalendarHeader:
-                        GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out string text);
+                        GetCalendarGridInfoText(Interop.MonthCalendar.Part.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out string text);
                         return text;
                     case CalendarChildType.TodayLink:
                         return string.Format("Today: {0}", _owner.TodayDate.ToShortDateString());
@@ -2948,8 +2949,8 @@ namespace System.Windows.Forms
 
                 CalendarRowAccessibleObject parentRowAccessibleObject = (CalendarRowAccessibleObject)parentAccessibleObject;
                 int rowIndex = parentRowAccessibleObject.RowIndex;
-                bool getNameResult = GetCalendarGridInfoText(NativeMethods.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
-                bool getDateResult = GetCalendarGridInfo(NativeMethods.MCGIF_DATE, NativeMethods.MCGIP_CALENDARCELL,
+                bool getNameResult = GetCalendarGridInfoText(Interop.MonthCalendar.Part.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
+                bool getDateResult = GetCalendarGridInfo(Interop.MonthCalendar.GridInfo.MCGIF_DATE, Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                     calendarIndex,
                     rowIndex,
                     columnIndex,
@@ -3001,8 +3002,8 @@ namespace System.Windows.Forms
 
                 // Search name for the first cell in the row.
                 bool success = GetCalendarGridInfo(
-                    NativeMethods.MCGIF_DATE,
-                    NativeMethods.MCGIP_CALENDARCELL,
+                    Interop.MonthCalendar.GridInfo.MCGIF_DATE,
+                    Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                     calendarIndex,
                     rowIndex,
                     0,
@@ -3038,11 +3039,11 @@ namespace System.Windows.Forms
                 out NativeMethods.SYSTEMTIME startDate)
             {
                 Debug.Assert(
-                    (dwFlags & ~(NativeMethods.MCGIF_DATE | NativeMethods.MCGIF_RECT)) == 0,
+                    (dwFlags & ~(Interop.MonthCalendar.GridInfo.MCGIF_DATE | Interop.MonthCalendar.GridInfo.MCGIF_RECT)) == 0,
                     "GetCalendarGridInfo() should be used only to obtain Date and Rect,"
                     + "dwFlags has flag bits other that MCGIF_DATE and MCGIF_RECT");
 
-                NativeMethods.MCGRIDINFO gridInfo = new NativeMethods.MCGRIDINFO();
+                Interop.MonthCalendar.MCGRIDINFO gridInfo = new Interop.MonthCalendar.MCGRIDINFO();
                 gridInfo.dwFlags = dwFlags;
                 gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
                 gridInfo.dwPart = dwPart;
@@ -3069,24 +3070,24 @@ namespace System.Windows.Forms
                 return result;
             }
 
-            private bool GetCalendarGridInfo(ref NativeMethods.MCGRIDINFO gridInfo)
+            private bool GetCalendarGridInfo(ref Interop.MonthCalendar.MCGRIDINFO gridInfo)
             {
                 // Do not use this if gridInfo.dwFlags contains MCGIF_NAME;
                 // use GetCalendarGridInfoText() instead.
                 Debug.Assert(
-                    (gridInfo.dwFlags & NativeMethods.MCGIF_NAME) == 0,
+                    (gridInfo.dwFlags & Interop.MonthCalendar.GridInfo.MCGIF_NAME) == 0,
                     "Param dwFlags contains MCGIF_NAME, use GetCalendarGridInfoText() to retrieve the text of a calendar part.");
 
-                gridInfo.dwFlags &= ~(uint)NativeMethods.MCGIF_NAME;
+                gridInfo.dwFlags &= ~(uint)Interop.MonthCalendar.GridInfo.MCGIF_NAME;
 
-                return _owner.SendMessage(NativeMethods.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+                return _owner.SendMessage(Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
             }
 
             private bool GetCalendarGridInfoText(uint dwPart, int calendarIndex, int row, int column, out string text)
             {
                 const int nameLength = 128;
 
-                NativeMethods.MCGRIDINFO gridInfo = new NativeMethods.MCGRIDINFO();
+                Interop.MonthCalendar.MCGRIDINFO gridInfo = new Interop.MonthCalendar.MCGRIDINFO();
                 gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
                 gridInfo.dwPart = dwPart;
                 gridInfo.iCalendar = calendarIndex;
@@ -3102,21 +3103,21 @@ namespace System.Windows.Forms
             }
 
             // Use to retrieve MCGIF_NAME only.
-            private bool GetCalendarGridInfoText(ref NativeMethods.MCGRIDINFO gridInfo)
+            private bool GetCalendarGridInfoText(ref Interop.MonthCalendar.MCGRIDINFO gridInfo)
             {
                 Debug.Assert(
                     gridInfo.dwFlags == 0,
                     "gridInfo.dwFlags should be 0 when calling GetCalendarGridInfoText");
 
-                gridInfo.dwFlags = NativeMethods.MCGIF_NAME;
+                gridInfo.dwFlags = Interop.MonthCalendar.GridInfo.MCGIF_NAME;
 
-                return _owner.SendMessage(NativeMethods.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+                return _owner.SendMessage(Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
             }
 
             public bool GetCalendarPartRectangle(int calendarIndex, uint dwPart, int row, int column, out RECT calendarPartRectangle)
             {
                 bool success = GetCalendarGridInfo(
-                    NativeMethods.MCGIF_RECT,
+                    Interop.MonthCalendar.GridInfo.MCGIF_RECT,
                     dwPart,
                     calendarIndex,
                     row,
@@ -3191,8 +3192,8 @@ namespace System.Windows.Forms
                     for (int column = 0; column < columnCount; column++)
                     {
                         bool success = GetCalendarGridInfo(
-                            NativeMethods.MCGIF_DATE,
-                            NativeMethods.MCGIP_CALENDARCELL,
+                            Interop.MonthCalendar.GridInfo.MCGIF_DATE,
+                            Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             row,
                             column,
@@ -3269,8 +3270,8 @@ namespace System.Windows.Forms
                 get
                 {
                     GetCalendarGridInfo(
-                        NativeMethods.MCGIF_RECT,
-                        NativeMethods.MCGIP_CALENDARBODY,
+                        Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                        Interop.MonthCalendar.Part.MCGIP_CALENDARBODY,
                         _calendarIndex,
                         -1,
                         -1,
@@ -3283,8 +3284,8 @@ namespace System.Windows.Forms
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            NativeMethods.MCGIF_RECT,
-                            NativeMethods.MCGIP_CALENDARCELL,
+                            Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                            Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             0,
                             columnCount,
@@ -3310,8 +3311,8 @@ namespace System.Windows.Forms
                 get
                 {
                     GetCalendarGridInfo(
-                        NativeMethods.MCGIF_RECT,
-                        NativeMethods.MCGIP_CALENDARBODY,
+                        Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                        Interop.MonthCalendar.Part.MCGIP_CALENDARBODY,
                         _calendarIndex,
                         -1,
                         -1,
@@ -3324,8 +3325,8 @@ namespace System.Windows.Forms
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            NativeMethods.MCGIF_RECT,
-                            NativeMethods.MCGIP_CALENDARCELL,
+                            Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                            Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             rowCount,
                             0,

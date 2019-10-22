@@ -23,11 +23,11 @@ namespace System.Windows.Forms
                 switch (ButtonType)
                 {
                     case CalendarButtonType.Previous:
-                        dwPart = (uint)NativeMethods.MCGIP_PREV;
+                        dwPart = (uint)Interop.MonthCalendar.Part.MCGIP_PREV;
                         break;
 
                     case CalendarButtonType.Next:
-                        dwPart = (uint)NativeMethods.MCGIP_NEXT;
+                        dwPart = (uint)Interop.MonthCalendar.Part.MCGIP_NEXT;
                         break;
 
                     default:

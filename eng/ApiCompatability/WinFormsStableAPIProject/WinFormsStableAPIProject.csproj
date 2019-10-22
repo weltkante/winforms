@@ -9,11 +9,6 @@
     <StableVersionToWitness>3.0.0</StableVersionToWitness>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Windows.Forms" Version="$(StableVersionToWitness)" />
-    <PackageReference Include="System.Design" Version="$(StableVersionToWitness)" />
-  </ItemGroup>
-
   <!-- The purpose of this target is to return a path from a referenced
        package / project -->
   <Target Name="GetContract" DependsOnTargets="ResolveReferences" Returns="@(_contractReferencePath)">

@@ -26,6 +26,10 @@ namespace System.Windows.Forms
                 _itemType = itemType;
             }
 
+            internal override UnsafeNativeMethods.IRawElementProviderFragmentRoot FragmentRoot => _calendarAccessibleObject;
+
+            public override AccessibleObject Parent => _calendarAccessibleObject;
+
             internal override Rectangle BoundingRectangle => CalculateBoundingRectangle();
 
             protected virtual RECT CalculateBoundingRectangle() => new RECT();
@@ -37,9 +41,17 @@ namespace System.Windows.Forms
                     _ => base.FragmentNavigate(direction)
                 };
 
-            internal override UnsafeNativeMethods.IRawElementProviderFragmentRoot FragmentRoot => _calendarAccessibleObject;
-
-            public override AccessibleObject Parent => _calendarAccessibleObject;
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[3];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = GetChildId();
+                    return runtimeId;
+                }
+            }
 
             public void RaiseMouseClick()
             {
@@ -53,18 +65,6 @@ namespace System.Windows.Forms
                 int x = (rectangle.right - rectangle.left) / 2;
                 int y = (rectangle.bottom - rectangle.top) / 2;
                 _calendarAccessibleObject.RaiseMouseClick(new MouseEventArgs(MouseButtons.Left, 1, x, y, 0));
-            }
-
-            internal override int[] RuntimeId
-            {
-                get
-                {
-                    int[] runtimeId = new int[3];
-                    runtimeId[0] = RuntimeIDFirstItem;
-                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
-                    runtimeId[2] = GetChildId();
-                    return runtimeId;
-                }
             }
         }
     }

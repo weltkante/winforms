@@ -17,6 +17,8 @@ namespace System.Windows.Forms
             {
             }
 
+            public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarHeader);
+
             internal override int GetChildId() => ChildId;
 
             internal override UnsafeNativeMethods.IRawElementProviderFragment FragmentNavigate(UnsafeNativeMethods.NavigateDirection direction) =>
@@ -41,8 +43,6 @@ namespace System.Windows.Forms
                 _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, Interop.MonthCalendar.Part.MCGIP_CALENDARHEADER, -1, -1, out RECT rectangle);
                 return rectangle;
             }
-
-            public override string Name => _calendarAccessibleObject.GetCalendarChildName(_calendarIndex, CalendarChildType.CalendarHeader);
 
             internal override bool IsPatternSupported(int patternId)
             {

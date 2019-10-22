@@ -18,6 +18,21 @@ namespace System.Windows.Forms
                 _rowIndex = rowIndex;
             }
 
+            public int RowIndex => _rowIndex;
+
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[4];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = Parent.GetChildId();
+                    runtimeId[3] = GetChildId();
+                    return runtimeId;
+                }
+            }
+
             protected override RECT CalculateBoundingRectangle()
             {
                 _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, Interop.MonthCalendar.Part.MCGIP_CALENDARROW, _rowIndex, -1, out RECT calendarPartRectangle);
@@ -39,24 +54,6 @@ namespace System.Windows.Forms
                         _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, this, _calendarAccessibleObject.ColumnCount - 1),
                     _ => base.FragmentNavigate(direction)
                 };
-
-            public int RowIndex => _rowIndex;
-
-            internal override int[] RuntimeId
-            {
-                get
-                {
-                    int[] runtimeId = new int[4];
-                    runtimeId[0] = RuntimeIDFirstItem;
-                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
-                    runtimeId[2] = Parent.GetChildId();
-                    runtimeId[3] = GetChildId();
-                    return runtimeId;
-                }
-            }
-
-            // Note: it is not clear whether we need the row names as these are meaningful only for weeks.
-            // public override string Name => _rowIndex >= 0 ? string.Format("Week {0}", _rowIndex) : string.Empty;
         }
     }
 }

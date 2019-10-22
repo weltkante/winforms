@@ -25,6 +25,28 @@ namespace System.Windows.Forms
                 _name = name;
             }
 
+            public override string Name => _name;
+
+            internal override int Row => _rowIndex;
+
+            internal override int Column => _columnIndex;
+
+            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _calendarAccessibleObject;
+
+            internal override int[] RuntimeId
+            {
+                get
+                {
+                    int[] runtimeId = new int[5];
+                    runtimeId[0] = RuntimeIDFirstItem;
+                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
+                    runtimeId[2] = Parent.Parent.GetChildId();
+                    runtimeId[3] = Parent.GetChildId();
+                    runtimeId[4] = GetChildId();
+                    return runtimeId;
+                }
+            }
+
             protected override RECT CalculateBoundingRectangle()
             {
                 _calendarAccessibleObject.GetCalendarPartRectangle(_calendarIndex, Interop.MonthCalendar.Part.MCGIP_CALENDARCELL, _rowIndex, _columnIndex, out RECT rectangle);
@@ -47,32 +69,30 @@ namespace System.Windows.Forms
             internal override object GetPropertyValue(int propertyID) =>
                 propertyID switch
                 {
-                    NativeMethods.UIA_ControlTypePropertyId => (_rowIndex == -1) ? NativeMethods.UIA_HeaderControlTypeId : NativeMethods.UIA_DataItemControlTypeId,
+                    NativeMethods.UIA_ControlTypePropertyId =>
+                        (_rowIndex == -1) ? NativeMethods.UIA_HeaderControlTypeId : NativeMethods.UIA_DataItemControlTypeId,
                     NativeMethods.UIA_NamePropertyId => Name,
-                    NativeMethods.UIA_HasKeyboardFocusPropertyId => true,
-                    NativeMethods.UIA_IsGridItemPatternAvailablePropertyId => true,
-                    NativeMethods.UIA_IsTableItemPatternAvailablePropertyId => true,
+                    var p when
+                        p == NativeMethods.UIA_HasKeyboardFocusPropertyId ||
+                        p == NativeMethods.UIA_IsGridItemPatternAvailablePropertyId ||
+                        p == NativeMethods.UIA_IsTableItemPatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)
                 };
 
-            internal override bool IsPatternSupported(int patternId)
-            {
-                if (patternId == NativeMethods.UIA_GridItemPatternId ||
-                    patternId == NativeMethods.UIA_InvokePatternId ||
-                    patternId == NativeMethods.UIA_TableItemPatternId)
+            internal override bool IsPatternSupported(int patternId) =>
+                patternId switch
                 {
-                    return true;
-                }
-
-                return base.IsPatternSupported(patternId);
-            }
+                    var p when
+                        p == NativeMethods.UIA_GridItemPatternId ||
+                        p == NativeMethods.UIA_InvokePatternId ||
+                        p == NativeMethods.UIA_TableItemPatternId => true,
+                    _ => base.IsPatternSupported(patternId)
+                };
 
             internal override void Invoke()
             {
                 RaiseMouseClick();
             }
-
-            public override string Name => _name;
 
             internal override UnsafeNativeMethods.IRawElementProviderSimple[] GetRowHeaderItems() => null;
 
@@ -89,26 +109,6 @@ namespace System.Windows.Forms
                     _calendarAccessibleObject.GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.CalendarCell, headerRowAccessibleObject, _columnIndex);
 
                 return new UnsafeNativeMethods.IRawElementProviderSimple[1] { headerCellAccessibleObject };
-            }
-
-            internal override int Row => _rowIndex;
-
-            internal override int Column => _columnIndex;
-
-            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid => _calendarAccessibleObject;
-
-            internal override int[] RuntimeId
-            {
-                get
-                {
-                    int[] runtimeId = new int[5];
-                    runtimeId[0] = RuntimeIDFirstItem;
-                    runtimeId[1] = _calendarAccessibleObject.Owner.Handle.ToInt32();
-                    runtimeId[2] = Parent.Parent.GetChildId();
-                    runtimeId[3] = Parent.GetChildId();
-                    runtimeId[4] = GetChildId();
-                    return runtimeId;
-                }
             }
         }
     }

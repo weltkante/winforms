@@ -44,15 +44,7 @@ namespace System.Windows.Forms
                 return rectangle;
             }
 
-            internal override bool IsPatternSupported(int patternId)
-            {
-                if (patternId == NativeMethods.UIA_InvokePatternId)
-                {
-                    return true;
-                }
-
-                return base.IsPatternSupported(patternId);
-            }
+            internal override bool IsPatternSupported(int patternId) => (patternId == NativeMethods.UIA_InvokePatternId) || base.IsPatternSupported(patternId);
 
             internal override void Invoke()
             {

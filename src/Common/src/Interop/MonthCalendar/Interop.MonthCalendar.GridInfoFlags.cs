@@ -10,11 +10,11 @@ internal static partial class Interop
         ///  MonthCalendar Control Messages.
         ///  Copied form CommCtrl.h
         /// </summary>
-        public static class GridInfo
+        public enum GridInfoFlags
         {
-            public const int MCGIF_DATE = 0x00000001;
-            public const int MCGIF_RECT = 0x00000002;
-            public const int MCGIF_NAME = 0x00000004;
+            MCGIF_DATE = 0x00000001,
+            MCGIF_RECT = 0x00000002,
+            MCGIF_NAME = 0x00000004
         }
     }
 }

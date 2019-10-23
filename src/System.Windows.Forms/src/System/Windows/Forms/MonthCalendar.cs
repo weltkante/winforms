@@ -366,20 +366,20 @@ namespace System.Windows.Forms
             {
                 CreateParams cp = base.CreateParams;
                 cp.ClassName = NativeMethods.WC_MONTHCAL;
-                cp.Style |= Interop.MonthCalendar.Styles.MCS_MULTISELECT | Interop.MonthCalendar.Styles.MCS_DAYSTATE;
+                cp.Style |= (int)Interop.MonthCalendar.Styles.MCS_MULTISELECT | (int)Interop.MonthCalendar.Styles.MCS_DAYSTATE;
                 if (!showToday)
                 {
-                    cp.Style |= Interop.MonthCalendar.Styles.MCS_NOTODAY;
+                    cp.Style |= (int)Interop.MonthCalendar.Styles.MCS_NOTODAY;
                 }
 
                 if (!showTodayCircle)
                 {
-                    cp.Style |= Interop.MonthCalendar.Styles.MCS_NOTODAYCIRCLE;
+                    cp.Style |= (int)Interop.MonthCalendar.Styles.MCS_NOTODAYCIRCLE;
                 }
 
                 if (showWeekNumbers)
                 {
-                    cp.Style |= Interop.MonthCalendar.Styles.MCS_WEEKNUMBERS;
+                    cp.Style |= (int)Interop.MonthCalendar.Styles.MCS_WEEKNUMBERS;
                 }
 
                 if (RightToLeft == RightToLeft.Yes && RightToLeftLayout == true)
@@ -467,7 +467,7 @@ namespace System.Windows.Forms
                         }
                         else
                         {
-                            SendMessage(Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, (int)value);
+                            SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, (int)value);
                         }
                     }
                 }
@@ -570,7 +570,7 @@ namespace System.Windows.Forms
                 {
                     if (IsHandleCreated)
                     {
-                        if (unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, value, 0)) == 0)
+                        if (unchecked((int)(long)SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, value, 0)) == 0)
                         {
                             throw new ArgumentException(string.Format(SR.MonthCalendarMaxSelCount, value.ToString("D")), nameof(value));
                         }
@@ -758,7 +758,7 @@ namespace System.Windows.Forms
 
                     if (IsHandleCreated)
                     {
-                        SendMessage(Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, value, 0);
+                        SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, value, 0);
                     }
                     scrollChange = value;
                 }
@@ -983,7 +983,7 @@ namespace System.Windows.Forms
                 if (IsHandleCreated)
                 {
 
-                    if (unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_GETMINREQRECT, 0, ref rect)) == 0)
+                    if (unchecked((int)(long)SendMessage((int)Interop.MonthCalendar.Messages.MCM_GETMINREQRECT, 0, ref rect)) == 0)
                     {
                         throw new InvalidOperationException(SR.InvalidSingleMonthSize);
                     }
@@ -1059,7 +1059,7 @@ namespace System.Windows.Forms
                 if (IsHandleCreated)
                 {
                     NativeMethods.SYSTEMTIME st = new NativeMethods.SYSTEMTIME();
-                    int res = (int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_GETTODAY, 0, st);
+                    int res = (int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_GETTODAY, 0, st);
                     Debug.Assert(res != 0, "MCM_GETTODAY failed");
                     return DateTimePicker.SysTimeToDateTime(st).Date;
                 }
@@ -1134,7 +1134,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 titleBackColor = value;
-                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, value);
+                SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, value);
             }
         }
 
@@ -1160,7 +1160,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 titleForeColor = value;
-                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, value);
+                SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, value);
             }
         }
 
@@ -1186,7 +1186,7 @@ namespace System.Windows.Forms
                                                               "value"));
                 }
                 trailingForeColor = value;
-                SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, value);
+                SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, value);
             }
         }
 
@@ -1401,7 +1401,7 @@ namespace System.Windows.Forms
         /// </summary>
         private HitArea GetHitArea(int hit)
         {
-            switch (hit)
+            switch ((Interop.MonthCalendar.HitTest)hit)
             {
                 case Interop.MonthCalendar.HitTest.MCHT_TITLEBK:
                     return HitArea.TitleBackground;
@@ -1491,7 +1491,7 @@ namespace System.Windows.Forms
             //
             if (IsHandleCreated)
             {
-                int maxTodayWidth = unchecked((int)(long)SendMessage(Interop.MonthCalendar.Messages.MCM_GETMAXTODAYWIDTH, 0, 0));
+                int maxTodayWidth = unchecked((int)(long)SendMessage((int)Interop.MonthCalendar.Messages.MCM_GETMAXTODAYWIDTH, 0, 0));
                 if (maxTodayWidth > minSize.Width)
                 {
                     minSize.Width = maxTodayWidth;
@@ -1509,7 +1509,7 @@ namespace System.Windows.Forms
         {
             NativeMethods.SYSTEMTIMEARRAY sa = new NativeMethods.SYSTEMTIMEARRAY();
             SelectionRange range = new SelectionRange();
-            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_GETMONTHRANGE, flag, sa);
+            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_GETMONTHRANGE, flag, sa);
 
             NativeMethods.SYSTEMTIME st = new NativeMethods.SYSTEMTIME
             {
@@ -1561,7 +1561,7 @@ namespace System.Windows.Forms
                 pt_y = y,
                 cbSize = Marshal.SizeOf<NativeMethods.MCHITTESTINFO>()
             };
-            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_HITTEST, 0, mchi);
+            UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_HITTEST, 0, mchi);
 
             // If the hit area has an associated valid date, get it
             //
@@ -1626,21 +1626,21 @@ namespace System.Windows.Forms
             SetSelRange(selectionStart, selectionEnd);
             if (maxSelectionCount != DEFAULT_MAX_SELECTION_COUNT)
             {
-                SendMessage(Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, maxSelectionCount, 0);
+                SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETMAXSELCOUNT, maxSelectionCount, 0);
             }
             AdjustSize();
 
             if (todayDateSet)
             {
                 NativeMethods.SYSTEMTIME st = DateTimePicker.DateTimeToSysTime(todayDate);
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
             }
 
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, titleBackColor);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, titleForeColor);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, trailingForeColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TITLEBK, titleBackColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TITLETEXT, titleForeColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TRAILINGTEXT, trailingForeColor);
 
             int firstDay;
             if (firstDayOfWeek == Day.Default)
@@ -1651,12 +1651,12 @@ namespace System.Windows.Forms
             {
                 firstDay = (int)firstDayOfWeek;
             }
-            SendMessage(Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, firstDay);
+            SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETFIRSTDAYOFWEEK, 0, firstDay);
 
             SetRange();
             if (scrollChange != DEFAULT_SCROLL_CHANGE)
             {
-                SendMessage(Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, scrollChange, 0);
+                SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETMONTHDELTA, scrollChange, 0);
             }
 
             SystemEvents.UserPreferenceChanged += new UserPreferenceChangedEventHandler(MarshaledUserPreferenceChanged);
@@ -1704,13 +1704,13 @@ namespace System.Windows.Forms
         protected override void OnForeColorChanged(EventArgs e)
         {
             base.OnForeColorChanged(e);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TEXT, ForeColor);
         }
 
         protected override void OnBackColorChanged(EventArgs e)
         {
             base.OnBackColorChanged(e);
-            SetControlColor(Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
+            SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_MONTHBK, BackColor);
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -2001,7 +2001,7 @@ namespace System.Windows.Forms
         {
             if (IsHandleCreated)
             {
-                SendMessage(Interop.MonthCalendar.Messages.MCM_SETCOLOR, colorIndex, ColorTranslator.ToWin32(value));
+                SendMessage((int)Interop.MonthCalendar.Messages.MCM_SETCOLOR, colorIndex, ColorTranslator.ToWin32(value));
             }
         }
 
@@ -2054,7 +2054,7 @@ namespace System.Windows.Forms
                 sa.wDayOfWeek2 = sys.wDayOfWeek;
                 sa.wDay2 = sys.wDay;
 
-                if ((int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETRANGE, flag, sa) == 0)
+                if ((int)UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_SETRANGE, flag, sa) == 0)
                 {
                     throw new InvalidOperationException(string.Format(SR.MonthCalendarRange, minDate.ToShortDateString(), maxDate.ToShortDateString()));
                 }
@@ -2206,7 +2206,7 @@ namespace System.Windows.Forms
                 sa.wMonth2 = sys.wMonth;
                 sa.wDayOfWeek2 = sys.wDayOfWeek;
                 sa.wDay2 = sys.wDay;
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETSELRANGE, 0, sa);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_SETSELRANGE, 0, sa);
             }
 
             if (changed)
@@ -2314,7 +2314,7 @@ namespace System.Windows.Forms
                 {
                     st = DateTimePicker.DateTimeToSysTime(todayDate);
                 }
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_SETTODAY, 0, st);
             }
         }
 

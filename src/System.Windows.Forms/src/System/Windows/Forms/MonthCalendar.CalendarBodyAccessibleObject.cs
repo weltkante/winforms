@@ -47,7 +47,7 @@ namespace System.Windows.Forms
 
             public CalendarChildAccessibleObject GetFromPoint(NativeMethods.MCHITTESTINFO_V6 hitTestInfo)
             {
-                switch (hitTestInfo.uHit)
+                switch ((Interop.MonthCalendar.HitTest)hitTestInfo.uHit)
                 {
                     case Interop.MonthCalendar.HitTest.MCHT_CALENDARDAY:
                     case Interop.MonthCalendar.HitTest.MCHT_CALENDARWEEKNUM:

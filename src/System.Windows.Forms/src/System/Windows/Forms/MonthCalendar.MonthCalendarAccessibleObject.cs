@@ -101,47 +101,50 @@ namespace System.Windows.Forms
                         return name;
                     }
 
-                    if (_owner != null)
+                    name = string.Empty;
+                    if (_owner == null)
                     {
+                        return name;
+                    }
 
-                        if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                    if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                    {
+                        if (DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
                         {
-                            if (System.DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
-                            {
-                                name = string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToLongDateString());
-                            }
-                            else
-                            {
-                                name = string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
-                            }
+                            return string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToLongDateString());
                         }
-                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
+                        else
                         {
-                            if (System.DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
-                            {
-                                name = string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToString("y"));
-                            }
-                            else
-                            {
-                                name = string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
-                            }
-                        }
-                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_DECADE)
-                        {
-                            if (System.DateTime.Equals(_owner.SelectionStart.Year, _owner.SelectionEnd.Year))
-                            {
-                                name = string.Format(SR.MonthCalendarSingleYearSelected, _owner.SelectionStart.ToString("yyyy"));
-                            }
-                            else
-                            {
-                                name = string.Format(SR.MonthCalendarYearRangeSelected, _owner.SelectionStart.ToString("yyyy"), _owner.SelectionEnd.ToString("yyyy"));
-                            }
-                        }
-                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_CENTURY)
-                        {
-                            name = string.Format(SR.MonthCalendarSingleDecadeSelected, _owner.SelectionStart.ToString("yyyy"));
+                            return string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
                         }
                     }
+                    else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
+                    {
+                        if (DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
+                        {
+                            return string.Format(SR.MonthCalendarSingleDateSelected, _owner.SelectionStart.ToString("y"));
+                        }
+                        else
+                        {
+                            return string.Format(SR.MonthCalendarRangeSelected, _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
+                        }
+                    }
+                    else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_DECADE)
+                    {
+                        if (DateTime.Equals(_owner.SelectionStart.Year, _owner.SelectionEnd.Year))
+                        {
+                            return string.Format(SR.MonthCalendarSingleYearSelected, _owner.SelectionStart.ToString("yyyy"));
+                        }
+                        else
+                        {
+                            return string.Format(SR.MonthCalendarYearRangeSelected, _owner.SelectionStart.ToString("yyyy"), _owner.SelectionEnd.ToString("yyyy"));
+                        }
+                    }
+                    else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_CENTURY)
+                    {
+                        return string.Format(SR.MonthCalendarSingleDecadeSelected, _owner.SelectionStart.ToString("yyyy"));
+                    }
+
                     return name;
                 }
             }
@@ -151,42 +154,45 @@ namespace System.Windows.Forms
                 get
                 {
                     var value = string.Empty;
+                    if (_owner == null)
+                    {
+                        return value;
+                    }
+
                     try
                     {
-                        if (_owner != null)
+                        if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
                         {
-                            if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                            if (System.DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
                             {
-                                if (System.DateTime.Equals(_owner.SelectionStart.Date, _owner.SelectionEnd.Date))
-                                {
-                                    value = _owner.SelectionStart.ToLongDateString();
-                                }
-                                else
-                                {
-                                    value = string.Format("{0} - {1}", _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
-                                }
-                            }
-                            else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
-                            {
-                                if (System.DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
-                                {
-                                    value = _owner.SelectionStart.ToString("y");
-                                }
-                                else
-                                {
-                                    value = string.Format("{0} - {1}", _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
-                                }
+                                value = _owner.SelectionStart.ToLongDateString();
                             }
                             else
                             {
-                                value = string.Format("{0} - {1}", _owner.SelectionRange.Start.ToString(), _owner.SelectionRange.End.ToString());
+                                value = string.Format("{0} - {1}", _owner.SelectionStart.ToLongDateString(), _owner.SelectionEnd.ToLongDateString());
                             }
+                        }
+                        else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
+                        {
+                            if (System.DateTime.Equals(_owner.SelectionStart.Month, _owner.SelectionEnd.Month))
+                            {
+                                value = _owner.SelectionStart.ToString("y");
+                            }
+                            else
+                            {
+                                value = string.Format("{0} - {1}", _owner.SelectionStart.ToString("y"), _owner.SelectionEnd.ToString("y"));
+                            }
+                        }
+                        else
+                        {
+                            value = string.Format("{0} - {1}", _owner.SelectionRange.Start.ToString(), _owner.SelectionRange.End.ToString());
                         }
                     }
                     catch
                     {
                         value = base.Value;
                     }
+
                     return value;
                 }
                 set
@@ -200,7 +206,7 @@ namespace System.Windows.Forms
                 get
                 {
                     GetCalendarGridInfo(
-                        Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                        Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT,
                         Interop.MonthCalendar.Part.MCGIP_CALENDARBODY,
                         _calendarIndex,
                         -1,
@@ -214,7 +220,7 @@ namespace System.Windows.Forms
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                            Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT,
                             Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             0,
@@ -241,7 +247,7 @@ namespace System.Windows.Forms
                 get
                 {
                     GetCalendarGridInfo(
-                        Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                        Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT,
                         Interop.MonthCalendar.Part.MCGIP_CALENDARBODY,
                         _calendarIndex,
                         -1,
@@ -255,7 +261,7 @@ namespace System.Windows.Forms
                     while (success)
                     {
                         success = GetCalendarGridInfo(
-                            Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                            Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT,
                             Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             rowCount,
@@ -287,7 +293,7 @@ namespace System.Windows.Forms
                 int innerY = (int)y;
 
                 NativeMethods.MCHITTESTINFO_V6 hitTestInfo = GetHitTestInfo(innerX, innerY);
-                switch (hitTestInfo.uHit)
+                switch ((Interop.MonthCalendar.HitTest)hitTestInfo.uHit)
                 {
                     case Interop.MonthCalendar.HitTest.MCHT_TITLEBTNPREV:
                         return GetCalendarChildAccessibleObject(_calendarIndex, CalendarChildType.PreviousButton);
@@ -346,7 +352,7 @@ namespace System.Windows.Forms
                 hitTestInfo.pt.x = point.X;
                 hitTestInfo.pt.y = point.Y;
 
-                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), Interop.MonthCalendar.Messages.MCM_HITTEST, 0, ref hitTestInfo);
+                UnsafeNativeMethods.SendMessage(new HandleRef(this, Handle), (int)Interop.MonthCalendar.Messages.MCM_HITTEST, 0, ref hitTestInfo);
 
                 return hitTestInfo;
             }
@@ -390,7 +396,7 @@ namespace System.Windows.Forms
                 CalendarRowAccessibleObject parentRowAccessibleObject = (CalendarRowAccessibleObject)parentAccessibleObject;
                 int rowIndex = parentRowAccessibleObject.RowIndex;
                 bool getNameResult = GetCalendarGridInfoText(Interop.MonthCalendar.Part.MCGIP_CALENDARCELL, calendarIndex, rowIndex, columnIndex, out string text);
-                bool getDateResult = GetCalendarGridInfo(Interop.MonthCalendar.GridInfo.MCGIF_DATE, Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
+                bool getDateResult = GetCalendarGridInfo(Interop.MonthCalendar.GridInfoFlags.MCGIF_DATE, Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                     calendarIndex,
                     rowIndex,
                     columnIndex,
@@ -414,19 +420,18 @@ namespace System.Windows.Forms
 
             private string GetCalendarCellName(DateTime endDate, DateTime startDate, string defaultName, bool headerCell)
             {
-                TimeSpan dateSpan = endDate - startDate;
+                if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_MONTH)
+                {
+                    if (headerCell)
+                    {
+                        return startDate.ToString("dddd");
+                    }
 
-                if (headerCell)
-                {
-                    return startDate.ToString("dddd", CultureInfo.CurrentCulture);
+                    return startDate.ToString("dddd, MMMM dd, yyyy");
                 }
-                else if (dateSpan.TotalDays == 0)
+                else if (_owner.mcCurView == NativeMethods.MONTCALENDAR_VIEW_MODE.MCMV_YEAR)
                 {
-                    return startDate.ToString("dddd, MMMM dd, yyyy", CultureInfo.CurrentCulture);
-                }
-                else if (dateSpan.TotalDays > 1 && dateSpan.TotalDays < 32)
-                {
-                    return startDate.ToString("MMMM yyyy", CultureInfo.CurrentCulture);
+                    return startDate.ToString("MMMM yyyy");
                 }
 
                 return defaultName;
@@ -442,7 +447,7 @@ namespace System.Windows.Forms
 
                 // Search name for the first cell in the row.
                 bool success = GetCalendarGridInfo(
-                    Interop.MonthCalendar.GridInfo.MCGIF_DATE,
+                    Interop.MonthCalendar.GridInfoFlags.MCGIF_DATE,
                     Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                     calendarIndex,
                     rowIndex,
@@ -469,8 +474,8 @@ namespace System.Windows.Forms
             }
 
             private bool GetCalendarGridInfo(
-                uint dwFlags,
-                uint dwPart,
+                Interop.MonthCalendar.GridInfoFlags dwFlags,
+                Interop.MonthCalendar.Part dwPart,
                 int calendarIndex,
                 int row,
                 int column,
@@ -479,14 +484,14 @@ namespace System.Windows.Forms
                 out NativeMethods.SYSTEMTIME startDate)
             {
                 Debug.Assert(
-                    (dwFlags & ~(Interop.MonthCalendar.GridInfo.MCGIF_DATE | Interop.MonthCalendar.GridInfo.MCGIF_RECT)) == 0,
+                    (dwFlags & ~(Interop.MonthCalendar.GridInfoFlags.MCGIF_DATE | Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT)) == 0,
                     "GetCalendarGridInfo() should be used only to obtain Date and Rect,"
                     + "dwFlags has flag bits other that MCGIF_DATE and MCGIF_RECT");
 
                 Interop.MonthCalendar.MCGRIDINFO gridInfo = new Interop.MonthCalendar.MCGRIDINFO();
-                gridInfo.dwFlags = dwFlags;
+                gridInfo.dwFlags = (uint)dwFlags;
                 gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
-                gridInfo.dwPart = dwPart;
+                gridInfo.dwPart = (uint)dwPart;
                 gridInfo.iCalendar = calendarIndex;
                 gridInfo.iCol = column;
                 gridInfo.iRow = row;
@@ -515,21 +520,21 @@ namespace System.Windows.Forms
                 // Do not use this if gridInfo.dwFlags contains MCGIF_NAME;
                 // use GetCalendarGridInfoText() instead.
                 Debug.Assert(
-                    (gridInfo.dwFlags & Interop.MonthCalendar.GridInfo.MCGIF_NAME) == 0,
+                    (gridInfo.dwFlags & (uint)Interop.MonthCalendar.GridInfoFlags.MCGIF_NAME) == 0,
                     "Param dwFlags contains MCGIF_NAME, use GetCalendarGridInfoText() to retrieve the text of a calendar part.");
 
-                gridInfo.dwFlags &= ~(uint)Interop.MonthCalendar.GridInfo.MCGIF_NAME;
+                gridInfo.dwFlags &= ~(uint)Interop.MonthCalendar.GridInfoFlags.MCGIF_NAME;
 
-                return _owner.SendMessage(Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+                return _owner.SendMessage((int)Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
             }
 
-            private bool GetCalendarGridInfoText(uint dwPart, int calendarIndex, int row, int column, out string text)
+            private bool GetCalendarGridInfoText(Interop.MonthCalendar.Part dwPart, int calendarIndex, int row, int column, out string text)
             {
                 const int nameLength = 128;
 
                 Interop.MonthCalendar.MCGRIDINFO gridInfo = new Interop.MonthCalendar.MCGRIDINFO();
                 gridInfo.cbSize = (uint)Marshal.SizeOf(gridInfo);
-                gridInfo.dwPart = dwPart;
+                gridInfo.dwPart = (uint)dwPart;
                 gridInfo.iCalendar = calendarIndex;
                 gridInfo.iCol = column;
                 gridInfo.iRow = row;
@@ -549,15 +554,15 @@ namespace System.Windows.Forms
                     gridInfo.dwFlags == 0,
                     "gridInfo.dwFlags should be 0 when calling GetCalendarGridInfoText");
 
-                gridInfo.dwFlags = Interop.MonthCalendar.GridInfo.MCGIF_NAME;
+                gridInfo.dwFlags = (uint)Interop.MonthCalendar.GridInfoFlags.MCGIF_NAME;
 
-                return _owner.SendMessage(Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
+                return _owner.SendMessage((int)Interop.MonthCalendar.Messages.MCM_GETCALENDARGRIDINFO, 0, ref gridInfo) != IntPtr.Zero;
             }
 
-            public bool GetCalendarPartRectangle(int calendarIndex, uint dwPart, int row, int column, out RECT calendarPartRectangle)
+            public bool GetCalendarPartRectangle(int calendarIndex, Interop.MonthCalendar.Part dwPart, int row, int column, out RECT calendarPartRectangle)
             {
                 bool success = GetCalendarGridInfo(
-                    Interop.MonthCalendar.GridInfo.MCGIF_RECT,
+                    Interop.MonthCalendar.GridInfoFlags.MCGIF_RECT,
                     dwPart,
                     calendarIndex,
                     row,
@@ -630,7 +635,7 @@ namespace System.Windows.Forms
                     for (int column = 0; column < columnCount; column++)
                     {
                         bool success = GetCalendarGridInfo(
-                            Interop.MonthCalendar.GridInfo.MCGIF_DATE,
+                            Interop.MonthCalendar.GridInfoFlags.MCGIF_DATE,
                             Interop.MonthCalendar.Part.MCGIP_CALENDARCELL,
                             _calendarIndex,
                             row,

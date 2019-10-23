@@ -19,15 +19,15 @@ namespace System.Windows.Forms
 
             protected override RECT CalculateBoundingRectangle()
             {
-                uint dwPart;
+                Interop.MonthCalendar.Part dwPart;
                 switch (ButtonType)
                 {
                     case CalendarButtonType.Previous:
-                        dwPart = (uint)Interop.MonthCalendar.Part.MCGIP_PREV;
+                        dwPart = Interop.MonthCalendar.Part.MCGIP_PREV;
                         break;
 
                     case CalendarButtonType.Next:
-                        dwPart = (uint)Interop.MonthCalendar.Part.MCGIP_NEXT;
+                        dwPart = Interop.MonthCalendar.Part.MCGIP_NEXT;
                         break;
 
                     default:

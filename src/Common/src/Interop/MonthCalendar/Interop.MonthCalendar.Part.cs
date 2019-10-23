@@ -10,17 +10,17 @@ internal static partial class Interop
         ///  MonthCalendar set color constants.
         ///  Copied form CommCtrl.h
         /// </summary>
-        public static class Part
+        public enum Part : uint
         {
-            public const int MCGIP_CALENDARCONTROL = 0;
-            public const int MCGIP_NEXT = 1;
-            public const int MCGIP_PREV = 2;
-            public const int MCGIP_FOOTER = 3;
-            public const int MCGIP_CALENDAR = 4;
-            public const int MCGIP_CALENDARHEADER = 5;
-            public const int MCGIP_CALENDARBODY = 6;
-            public const int MCGIP_CALENDARROW = 7;
-            public const int MCGIP_CALENDARCELL = 8;
+            MCGIP_CALENDARCONTROL = 0,
+            MCGIP_NEXT = 1,
+            MCGIP_PREV = 2,
+            MCGIP_FOOTER = 3,
+            MCGIP_CALENDAR = 4,
+            MCGIP_CALENDARHEADER = 5,
+            MCGIP_CALENDARBODY = 6,
+            MCGIP_CALENDARROW = 7,
+            MCGIP_CALENDARCELL = 8
         }
     }
 }

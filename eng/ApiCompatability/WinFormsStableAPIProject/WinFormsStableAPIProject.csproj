@@ -6,18 +6,19 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- You should simply be able to change this in order to witness another version -->
     <StableVersionToWitness>3.0.0</StableVersionToWitness>
   </PropertyGroup>
 
   <ItemGroup>
-  <FrameworkReference
-        Update="Microsoft.NETCore.App" 
-        TargetingPackVersion="$(StableVersionToWitness)"
-        RuntimeFrameworkVersion="$(StableVersionToWitness)" />
+    <!-- Control the version of the Ref Pack used via the WindowsDesktop SDK -->
+    <FrameworkReference
+      Update="Microsoft.NETCore.App" 
+      TargetingPackVersion="$(StableVersionToWitness)"
+      RuntimeFrameworkVersion="$(StableVersionToWitness)" />
   </ItemGroup>
 
-  <!-- The purpose of this target is to return a path from a referenced
-       package / project -->
+  <!-- The purpose of this target is to return a path from a referenced package / project -->
   <Target Name="GetPreviousReleaseContract" DependsOnTargets="ResolveReferences" Returns="@(_contractReferencePath)">
     <Error Condition="'$(ContractName)' == ''" Text="ContractName must be specified" />
     <ItemGroup>

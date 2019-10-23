@@ -32,7 +32,7 @@ namespace System.Windows.Forms
                 {
                     NativeMethods.UIA_BoundingRectanglePropertyId => BoundingRectangle,
                     NativeMethods.UIA_ControlTypePropertyId => NativeMethods.UIA_ButtonControlTypeId,
-                    NativeMethods.UIA_NamePropertyId => "Previous",
+                    NativeMethods.UIA_NamePropertyId => SR.MonthCalendarPreviousButtonAccessibleName,
                     _ => base.GetPropertyValue(propertyID)
                 };
         }

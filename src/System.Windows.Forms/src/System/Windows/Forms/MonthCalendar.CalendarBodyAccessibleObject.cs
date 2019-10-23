@@ -64,7 +64,7 @@ namespace System.Windows.Forms
             internal override object GetPropertyValue(int propertyID) =>
                 propertyID switch
                 {
-                    NativeMethods.UIA_NamePropertyId => "Calendar body",
+                    NativeMethods.UIA_NamePropertyId => SR.MonthCalendarBodyAccessibleName,
                     NativeMethods.UIA_IsGridPatternAvailablePropertyId => true,
                     NativeMethods.UIA_IsTablePatternAvailablePropertyId => true,
                     _ => base.GetPropertyValue(propertyID)

@@ -378,7 +378,7 @@ namespace System.Windows.Forms
                         GetCalendarGridInfoText(Interop.MonthCalendar.Part.MCGIP_CALENDARHEADER, calendarIndex, 0, 0, out string text);
                         return text;
                     case CalendarChildType.TodayLink:
-                        return string.Format("Today: {0}", _owner.TodayDate.ToShortDateString());
+                        return string.Format(SR.MonthCalendarTodayButtonAccessibleName, _owner.TodayDate.ToShortDateString());
                 };
 
                 return string.Empty;

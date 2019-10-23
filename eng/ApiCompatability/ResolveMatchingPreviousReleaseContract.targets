@@ -3,11 +3,7 @@
   <Target Name="ResolveMatchingPreviousReleaseContract" BeforeTargets="ResolveAssemblyReferences">
     <Error Condition="!Exists('$(PreviousReleaseStableApiProject)')" Text="Error, failed to locate '$(PreviousReleaseStableApiProject)'" />
     <MSBuild Projects="$(PreviousReleaseStableApiProject)"
-             Targets="Restore"
-             Properties="ContractName=$(AssemblyName);TargetFramework=$(TargetFramework)">
-    </MSBuild>
-    <MSBuild Projects="$(PreviousReleaseStableApiProject)"
-             Targets="GetContract"
+             Targets="GetPreviousReleaseContract"
              Properties="ContractName=$(AssemblyName);TargetFramework=$(TargetFramework)">
       <Output TaskParameter="TargetOutputs" ItemName="ResolveMatchingPreviousReleaseContract"/>
     </MSBuild>

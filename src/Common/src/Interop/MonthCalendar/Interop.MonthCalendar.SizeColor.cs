@@ -15,7 +15,7 @@ internal static partial class Interop
             TEXT = 1,
             TITLEBK = 2,
             TITLETEXT = 3,
-            MCSC_MONTHBK = 4,
+            MONTHBK = 4,
             MCSC_TRAILINGTEXT = 5
         }
     }

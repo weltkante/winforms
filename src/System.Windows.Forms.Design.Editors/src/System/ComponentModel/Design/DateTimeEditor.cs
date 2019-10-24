@@ -22,20 +22,24 @@ namespace System.ComponentModel.Design
         /// </summary>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            if (provider != null)
+            if (provider == null)
             {
-                IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+                return value;
+            }
 
-                if (edSvc != null)
-                {
-                    using (DateTimeUI dateTimeUI = new DateTimeUI())
-                    {
-                        dateTimeUI.Start(edSvc, value);
-                        edSvc.DropDownControl(dateTimeUI);
-                        value = dateTimeUI.Value;
-                        dateTimeUI.End();
-                    }
-                }
+            IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+
+            if (edSvc == null)
+            {
+                return value;
+            }
+
+            using (DateTimeUI dateTimeUI = new DateTimeUI())
+            {
+                dateTimeUI.Start(edSvc, value);
+                edSvc.DropDownControl(dateTimeUI);
+                value = dateTimeUI.Value;
+                dateTimeUI.End();
             }
 
             return value;
@@ -50,29 +54,22 @@ namespace System.ComponentModel.Design
             return UITypeEditorEditStyle.DropDown;
         }
 
-        /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI"]/*' />
-        /// <devdoc>
-        ///      UI we drop down to pick dates.
-        /// </devdoc>
+        /// <summary>
+        ///  UI we drop down to pick dates.
+        /// </summary>
         private class DateTimeUI : Control
         {
             private MonthCalendar monthCalendar = new DateTimeMonthCalendar();
             private object value;
             private IWindowsFormsEditorService edSvc;
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.DateTimeUI"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             public DateTimeUI()
             {
                 InitializeComponent();
                 Size = monthCalendar.SingleMonthSize;
-                monthCalendar.Resize += new EventHandler(this.MonthCalResize);
+                monthCalendar.Resize += MonthCalResize;
             }
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.Value"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             public object Value
             {
                 get
@@ -81,9 +78,6 @@ namespace System.ComponentModel.Design
                 }
             }
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.End"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             public void End()
             {
                 edSvc = null;
@@ -103,33 +97,23 @@ namespace System.ComponentModel.Design
             protected override void RescaleConstantsForDpi(int deviceDpiOld, int deviceDpiNew)
             {
                 base.RescaleConstantsForDpi(deviceDpiOld, deviceDpiNew);
-                //if (!DpiHelper.EnableDpiChangedHighDpiImprovements)
-                //{
-                //    return;
-                //}
 
                 //Resizing the editor to fit to the SingleMonth size after Dpi changed.
                 Size = monthCalendar.SingleMonthSize;
             }
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.InitializeComponent"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             private void InitializeComponent()
             {
-                monthCalendar.DateSelected += new DateRangeEventHandler(this.OnDateSelected);
-                monthCalendar.KeyDown += new KeyEventHandler(this.MonthCalKeyDown);
-                this.Controls.Add(monthCalendar);
+                monthCalendar.DateSelected += OnDateSelected;
+                monthCalendar.KeyDown += MonthCalKeyDown;
+                Controls.Add(monthCalendar);
             }
 
             private void MonthCalResize(object sender, EventArgs e)
             {
-                this.Size = monthCalendar.Size;
+                Size = monthCalendar.Size;
             }
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.OnDateSelected"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             private void OnDateSelected(object sender, DateRangeEventArgs e)
             {
                 value = monthCalendar.SelectionStart;
@@ -142,9 +126,6 @@ namespace System.ComponentModel.Design
                 monthCalendar.Focus();
             }
 
-            /// <include file='doc\DateTimeEditor.uex' path='docs/doc[@for="DateTimeEditor.DateTimeUI.Start"]/*' />
-            /// <devdoc>
-            /// </devdoc>
             public void Start(IWindowsFormsEditorService edSvc, object value)
             {
                 this.edSvc = edSvc;
@@ -159,13 +140,14 @@ namespace System.ComponentModel.Design
 
             class DateTimeMonthCalendar : MonthCalendar
             {
-                protected override bool IsInputKey(System.Windows.Forms.Keys keyData)
+                protected override bool IsInputKey(Keys keyData)
                 {
                     switch (keyData)
                     {
                         case Keys.Enter:
                             return true;
                     }
+                    
                     return base.IsInputKey(keyData);
                 }
             }

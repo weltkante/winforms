@@ -10,7 +10,7 @@ internal static partial class Interop
         ///  MonthCalendar size and color constants.
         ///  Copied form CommCtrl.h
         /// </summary>
-        public enum SizeColor
+        public enum MCSC
         {
             MCSC_TEXT = 1,
             MCSC_TITLEBK = 2,

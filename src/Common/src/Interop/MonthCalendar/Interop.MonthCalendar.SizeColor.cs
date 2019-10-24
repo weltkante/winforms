@@ -13,7 +13,7 @@ internal static partial class Interop
         public enum MCSC
         {
             TEXT = 1,
-            MCSC_TITLEBK = 2,
+            TITLEBK = 2,
             MCSC_TITLETEXT = 3,
             MCSC_MONTHBK = 4,
             MCSC_TRAILINGTEXT = 5

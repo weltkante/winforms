@@ -221,7 +221,7 @@ namespace System.Windows.Forms
                 if (!value.Equals(calendarForeColor))
                 {
                     calendarForeColor = value;
-                    SetControlColor((int)Interop.MonthCalendar.SizeColor.MCSC_TEXT, value);
+                    SetControlColor((int)Interop.ComCtl32.MCSC.TEXT, value);
                 }
             }
         }

@@ -4,7 +4,7 @@
 
 internal static partial class Interop
 {
-    internal static partial class MonthCalendar
+    internal static partial class ComCtl32
     {
         /// <summary>
         ///  MonthCalendar size and color constants.

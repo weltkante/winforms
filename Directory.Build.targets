@@ -50,6 +50,13 @@
       InstrumenterState="$(InstrumenterState)"/>
   </Target>
 
+  <!-- workaround against Xunit.StaFact pulling in Microsoft.WindowsDesktop.App -->
+  <Target Name="IgnoreNugetFrameworkReferences" AfterTargets="ResolvePackageAssets" BeforeTargets="AddTransitiveFrameworkReferences">
+    <ItemGroup>
+      <TransitiveFrameworkReference Remove="@(TransitiveFrameworkReference)"/>
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <!-- Set TargetingPackVersion -->
     <FrameworkReference Update="Microsoft.NETCore.App" 

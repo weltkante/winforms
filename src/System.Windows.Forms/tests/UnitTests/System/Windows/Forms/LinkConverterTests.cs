@@ -38,6 +38,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ConvertFrom_TestData))]
         public void LinkConverter_ConvertFrom_String_ReturnsExpected(string value, object expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new LinkConverter();
             AssertEqualLink(expected, converter.ConvertFrom(value));
             AssertEqualLink(expected, converter.ConvertFrom(null, null, value));
@@ -58,6 +59,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("1,2,3")]
         public void LinkConverter_ConvertFrom_InvalidString_ThrowsArgumentException(string value)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new LinkConverter();
             Assert.Throws<ArgumentException>(null, () => converter.ConvertFrom(value));
         }
@@ -77,6 +79,7 @@ namespace System.Windows.Forms.Tests
         [Fact]
         public void LinkConverter_ConvertTo_String_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new LinkConverter();
             Assert.Equal("1, 2", converter.ConvertTo(new LinkLabel.Link(1, 2), typeof(string)));
             Assert.Equal("1, 2", converter.ConvertTo(null, null, new LinkLabel.Link(1, 2), typeof(string)));

@@ -49,6 +49,7 @@ namespace System.Windows.Forms.Design.Tests
         [Fact]
         public void FileNameEditor_InitializeDialog_Invoke_Success()
         {
+            using var cultureScope = new EnglishCultureScope();
             var editor = new SubFileNameEditor();
             using (var openFileDialog = new OpenFileDialog())
             {

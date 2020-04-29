@@ -45,6 +45,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ConvertFrom_TestData))]
         public void OpacityConverter_ConvertFrom_String_ReturnsExpected(string value, double expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new OpacityConverter();
             Assert.Equal(expected, Assert.IsType<double>(converter.ConvertFrom(value)), 5);
             Assert.Equal(expected, Assert.IsType<double>(converter.ConvertFrom(null, null, value)), 5);
@@ -71,6 +72,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("invalid")]
         public void OpacityConverter_ConvertFrom_InvalidString_ThrowsFormatException(string value)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new OpacityConverter();
             Assert.Throws<FormatException>(() => converter.ConvertFrom(value));
         }

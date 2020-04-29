@@ -1879,6 +1879,8 @@ namespace System.ComponentModel.Design.Tests
         [WinFormsFact]
         public void DesignerHost_CreateTransaction_Invoke_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var surface = new SubDesignSurface();
             IDesignerLoaderHost2 host = surface.Host;
             DesignerTransaction transaction1 = host.CreateTransaction();
@@ -1904,6 +1906,8 @@ namespace System.ComponentModel.Design.Tests
         [InlineData("Description", "Description")]
         public void DesignerHost_CreateTransaction_InvokeWithDescription_ReturnsExpected(string description, string expectedDescription)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var surface = new SubDesignSurface();
             IDesignerLoaderHost2 host = surface.Host;
             DesignerTransaction transaction1 = host.CreateTransaction(description);

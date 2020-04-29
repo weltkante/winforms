@@ -18,6 +18,8 @@ namespace System.Windows.Forms.Design.Tests
         [Fact]
         public void EventsTab_Ctor_IServiceProvider()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockServiceProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
             var tab = new EventsTab(mockServiceProvider.Object);
             Assert.NotNull(tab.Bitmap);

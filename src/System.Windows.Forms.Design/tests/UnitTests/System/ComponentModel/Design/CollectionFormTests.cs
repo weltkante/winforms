@@ -543,6 +543,8 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(CreateInstance_HostDesigner_TestData))]
         public void CollectionForm_CreateInstance_WithContextWithHostReturningComponent_CallsCreateComponent(IDesigner designer)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -592,6 +594,8 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(CreateInstance_HostDesigner_TestData))]
         public void CollectionForm_CreateInstance_WithContextWithHostReturningNullComponent_CallsCreateComponent(IDesigner designer)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -643,6 +647,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionForm_CreateInstance_WithContextWithHostReturningComponentWithIComponentInitializerDesigner_CallsInitializeNewComponent()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))

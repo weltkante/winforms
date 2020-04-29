@@ -1866,7 +1866,11 @@ namespace System.Windows.Forms.Tests
             await Task.Run(() => control.Navigate(file.Path));
             Assert.True(await source.Task);
 
-            Assert.Equal("Done", control.StatusText);
+            // cannot find a way to convince the browser control of switching its language
+            if (Globalization.CultureInfo.CurrentUICulture.Parent.Name == "en")
+                Assert.Equal("Done", control.StatusText);
+            else
+                Assert.False(string.IsNullOrEmpty(control.StatusText));
         }
 
         [WinFormsFact]

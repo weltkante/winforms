@@ -38,6 +38,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ConvertFrom_TestData))]
         public void PaddingConverter_ConvertFrom_String_ReturnsExpected(string value, object expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new PaddingConverter();
             Assert.Equal(expected, converter.ConvertFrom(value));
             Assert.Equal(expected, converter.ConvertFrom(null, null, value));
@@ -58,6 +59,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("1,2,3,4,5")]
         public void PaddingConverter_ConvertFrom_InvalidString_ThrowsArgumentException(string value)
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new PaddingConverter();
             Assert.Throws<ArgumentException>("value", () => converter.ConvertFrom(value));
         }
@@ -77,6 +79,7 @@ namespace System.Windows.Forms.Tests
         [Fact]
         public void PaddingConverter_ConvertTo_String_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             var converter = new PaddingConverter();
             Assert.Equal("1, 2, 3, 4", converter.ConvertTo(new Padding(1, 2, 3, 4), typeof(string)));
             Assert.Equal("1, 2, 3, 4", converter.ConvertTo(null, null, new Padding(1, 2, 3, 4), typeof(string)));

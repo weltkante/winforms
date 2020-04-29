@@ -39,6 +39,7 @@ namespace System.Windows.Forms.Tests
         [WinFormsFact]
         public void VScrollBarAccessibleObject_Name_Get_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             using var scrollBar = new VScrollBar();
             VScrollBar.VScrollBarAccessibleObject accessibleObject
                 = Assert.IsType<VScrollBar.VScrollBarAccessibleObject>(scrollBar.AccessibilityObject);

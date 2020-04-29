@@ -195,6 +195,8 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(CreateInstance_HostDesigner_TestData))]
         public void CollectionEditor_CreateInstance_WithContextWithHostReturningComponent_CallsCreateComponent(IDesigner designer)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -243,6 +245,8 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(CreateInstance_HostDesigner_TestData))]
         public void CollectionEditor_CreateInstance_WithContextWithHostReturningNullComponent_CallsCreateComponent(IDesigner designer)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -293,6 +297,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionEditor_CreateInstance_WithContextWithHostReturningComponentWithIComponentInitializerDesigner_CallsInitializeNewComponent()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -445,6 +451,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionEditor_DestroyInstance_WithContextWithInvalidHost_CallsDestroyComponent()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -555,6 +563,8 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(InvalidDesignerHost_TestData))]
         public void CollectionEditor_EditValue_ValidProviderValidHost_ReturnsValue(object changeService)
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -595,6 +605,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionEditor_EditValue_ValidProviderValidHostWithTransactionOK_CallsOnCommit()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -645,6 +657,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionEditor_EditValue_ValidProviderValidHostWithTransactionNotOK_CallsOnCancel()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -695,6 +709,8 @@ namespace System.ComponentModel.Design.Tests
         [Fact]
         public void CollectionEditor_EditValue_ValidProviderValidHostWithIComponentChangeService_ReturnsValue()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             var mockEditorService = new Mock<IWindowsFormsEditorService>(MockBehavior.Strict);
             mockEditorService
                 .Setup(s => s.ShowDialog(It.IsAny<Form>()))
@@ -811,6 +827,7 @@ namespace System.ComponentModel.Design.Tests
         [MemberData(nameof(GetDisplayText_TestData))]
         public void CollectionEditor_GetDisplayText_Invoke_ReturnsExpected(Type type, object value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             var editor = new SubCollectionEditor(type);
             Assert.Equal(expected, editor.GetDisplayText(value));
         }

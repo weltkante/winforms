@@ -109,6 +109,7 @@ namespace System.Drawing.Design.Tests
         [Fact]
         public void ImageEditor_GetFileDialogDescription_Invoke_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             var editor = new SubImageEditor();
             Assert.Equal("All image files", editor.GetFileDialogDescription());
         }

@@ -72,6 +72,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(Name_TestData))]
         public void DataGridViewRowAccessibleObject_Name_Get_ReturnsExpected(AccessibleObject accessibleObject, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Equal(expected, accessibleObject.Name);
         }
 
@@ -224,6 +225,7 @@ namespace System.Windows.Forms.Tests
         [Fact]
         public void DataGridViewRowAccessibleObject_GetSelected_Invoke_ReturnsSameInstance()
         {
+            using var cultureScope = new EnglishCultureScope();
             using var owner = new DataGridViewRow();
             var accessibleObject = new DataGridViewRowAccessibleObject(owner);
             Assert.Same(accessibleObject.GetSelected(), accessibleObject.GetSelected());

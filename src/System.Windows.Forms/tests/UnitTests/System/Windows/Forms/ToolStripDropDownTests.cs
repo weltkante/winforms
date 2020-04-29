@@ -1940,6 +1940,7 @@ namespace System.Windows.Forms.Tests
                     expectedLocationChangedCallCount = 1;
             }
 
+            using var cultureScope = new EnglishCultureScope();
             using var control = new ToolStripDropDown();
             int moveCallCount = 0;
             int locationChangedCallCount = 0;

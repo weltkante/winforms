@@ -44,6 +44,7 @@ namespace System.Drawing.Design.Tests
         [Fact]
         public void MetafileEditor_GetFileDialogDescription_Invoke_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             var editor = new SubMetafileEditor();
             Assert.Equal("Metafiles", editor.GetFileDialogDescription());
         }

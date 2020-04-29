@@ -61,6 +61,7 @@ namespace System.Drawing.Design.Tests
         [Fact]
         public void BitmapEditor_GetFileDialogDescription_Invoke_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             var editor = new SubBitmapEditor();
             Assert.Equal("Bitmap files", editor.GetFileDialogDescription());
         }

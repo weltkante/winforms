@@ -64,6 +64,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)")]
         public void ListViewGroupConverter_ConvertFrom_EmptyValue_ReturnsNull(string value)
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(ListViewGroup));
             Assert.Null(converter.ConvertFrom(value));
         }
@@ -125,6 +126,7 @@ namespace System.Windows.Forms.Tests
         [InlineData(1)]
         public void ListViewGroupConverter_ConvertFrom_InvalidValue_ThrowsNotSupportedException(object value)
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(ListViewGroup));
             Assert.Throws<NotSupportedException>(() => converter.ConvertFrom(value));
         }
@@ -215,6 +217,7 @@ namespace System.Windows.Forms.Tests
         [InlineData(1, "1")]
         public void ListViewGroupConverter_ConvertTo_String_ReturnsExpected(object value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(ListViewGroup));
             Assert.Equal(expected, converter.ConvertTo(value, typeof(string)));
         }

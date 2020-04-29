@@ -80,6 +80,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(DefaultAction_TestData))]
         public void DataGridViewCellAccessibleObject_DefaultAction_Get_ReturnsExpected(AccessibleObject accessibleObject, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Equal(expected, accessibleObject.DefaultAction);
         }
 
@@ -188,6 +189,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(Value_TestData))]
         public void DataGridViewCellAccessibleObject_Value_Get_ReturnsExpected(AccessibleObject accessibleObject, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Equal(expected, accessibleObject.Value);
         }
 

@@ -2226,6 +2226,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void ImageKey_SetWithoutImageList_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView
             {
                 ImageKey = value
@@ -2244,6 +2245,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void ImageKey_SetWithoutImageListWithImageIndex_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView
             {
                 ImageIndex = 1,
@@ -2272,6 +2274,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void ImageKey_SetWithEmptyImageList_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -2291,6 +2294,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void ImageKey_SetWithEmptyImageListWithImageIndex_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -2311,6 +2315,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void ImageKey_SetWithNonEmptyImageList_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));
@@ -2337,6 +2342,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("ImageKey", "ImageKey", -1)]
         public void ImageKey_SetWithNonEmptyImageListWithImageIndex_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));
@@ -2360,6 +2366,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void ImageKey_SetWithoutImageListWithHandle_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView();
             Assert.NotEqual(IntPtr.Zero, treeView.Handle);
 
@@ -2377,6 +2384,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void ImageKey_SetWithEmptyImageListWithHandle_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -2398,6 +2406,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void ImageKey_SetWithNonEmptyImageListWithHandle_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));
@@ -3585,6 +3594,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void SelectedImageKey_SetWithoutImageList_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView
             {
                 SelectedImageKey = value
@@ -3603,6 +3613,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void SelectedImageKey_SetWithoutImageListWithImageIndex_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView
             {
                 SelectedImageIndex = 1,
@@ -3621,6 +3632,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void SelectedImageKey_SetWithEmptyImageList_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -3640,6 +3652,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void SelectedImageKey_SetWithEmptyImageListWithImageIndex_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -3660,6 +3673,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void SelectedImageKey_SetWithNonEmptyImageList_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));
@@ -3686,6 +3700,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("ImageKey", "ImageKey", -1)]
         public void SelectedImageKey_SetWithNonEmptyImageListWithImageIndex_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));
@@ -3709,6 +3724,7 @@ namespace System.Windows.Forms.Tests
         [InlineData("(none)", "")]
         public void SelectedImageKey_SetWithoutImageListWithHandle_GetReturnsExpected(string value, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var treeView = new TreeView();
             Assert.NotEqual(IntPtr.Zero, treeView.Handle);
 
@@ -3726,6 +3742,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void SelectedImageKey_SetWithEmptyImageListWithHandle_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             using var treeView = new TreeView
             {
@@ -3747,6 +3764,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ImageKey_Set_TestData))]
         public void SelectedImageKey_SetWithNonEmptyImageListWithHandle_GetReturnsExpected(string value, string expected, int expectedImageIndex)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var imageList = new ImageList();
             imageList.Images.Add(new Bitmap(10, 10));
             imageList.Images.Add("imageKey", new Bitmap(10, 10));

@@ -2377,6 +2377,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(RedoActionName_CustomGetRedoName_TestData))]
         public void RichTextBox_RedoActionName_CustomGetRedoName_ReturnsExpected(IntPtr canRedoResult, IntPtr getRedoNameResult, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var control = new CustomGetRedoNameRichTextBox
             {
                 CanRedoResult = canRedoResult,
@@ -7677,6 +7678,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(UndoActionName_CustomGetUndoName_TestData))]
         public void RichTextBox_UndoActionName_CustomGetUndoName_ReturnsExpected(IntPtr canUndoResult, IntPtr getUndoNameResult, string expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             using var control = new CustomGetUndoNameRichTextBox
             {
                 CanUndoResult = canUndoResult,

@@ -27,6 +27,8 @@ namespace System.Windows.Forms.Tests.AccessibleObjects
         [WinFormsFact]
         public void DataGridViewAccessibleObject_ItemStatus_ReturnsAsSorted()
         {
+            using var cultureScope = new EnglishCultureScope();
+
             using DataGridView dataGridView = new DataGridView();
             DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn();
             column.SortMode = DataGridViewColumnSortMode.Programmatic;
@@ -191,6 +193,7 @@ namespace System.Windows.Forms.Tests.AccessibleObjects
         [WinFormsFact]
         public void DataGridViewAccessibleObject_ItemStatus_IsCorrectWhenSorted()
         {
+            using var cultureScope = new EnglishCultureScope();
             using DataGridView dataGridView = new DataGridView();
             using DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn();
             column.SortMode = DataGridViewColumnSortMode.Programmatic;

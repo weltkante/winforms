@@ -27,6 +27,7 @@ namespace System.Windows.Forms.Design.Tests
         [InlineData("(None)", "")]
         public static void ConvertFrom( object actual, object expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Equal(expected, s_converter.ConvertFrom(s_context, CultureInfo.CurrentCulture, actual));
         }
 
@@ -36,6 +37,7 @@ namespace System.Windows.Forms.Design.Tests
         [InlineData("FirstName", typeof(string), "FirstName")]
         public static void ConvertTo(object actual, Type expectedType, object expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Equal(expected, s_converter.ConvertTo(s_context, CultureInfo.CurrentCulture, actual, expectedType));
         }
 
@@ -44,6 +46,7 @@ namespace System.Windows.Forms.Design.Tests
         [InlineData("FirstName", typeof(int))]
         public static void ConvertTo_ThrowsNotSupportedException(object actual, Type expectedType)
         {
+            using var cultureScope = new EnglishCultureScope();
             Assert.Throws<NotSupportedException>(
                 () => s_converter.ConvertTo(s_context, CultureInfo.CurrentCulture, actual, expectedType));
         }

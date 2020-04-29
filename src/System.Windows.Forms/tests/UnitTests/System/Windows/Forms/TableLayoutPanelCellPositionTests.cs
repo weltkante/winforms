@@ -123,6 +123,7 @@ namespace System.Windows.Forms.Tests
         [MemberData(nameof(ConvertFrom_TestData))]
         public void TableLayoutPanelCellPosition_ConverterConvertFrom_String_ReturnsExpected(string value, object expected)
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(TableLayoutPanelCellPosition));
             Assert.Equal(expected, converter.ConvertFrom(value));
             Assert.Equal(expected, converter.ConvertFrom(null, null, value));
@@ -149,6 +150,7 @@ namespace System.Windows.Forms.Tests
         [Fact]
         public void TableLayoutPanelCellPosition_ConverterConvertFrom_InvalidColumn_ThrowsArgumentOutOfRangeException()
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(TableLayoutPanelCellPosition));
             Assert.Throws<ArgumentOutOfRangeException>("column", () => converter.ConvertFrom("-2,2"));
         }
@@ -156,6 +158,7 @@ namespace System.Windows.Forms.Tests
         [Fact]
         public void TableLayoutPanelCellPosition_ConverterConvertFrom_InvalidRow_ThrowsArgumentOutOfRangeException()
         {
+            using var cultureScope = new EnglishCultureScope();
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(TableLayoutPanelCellPosition));
             Assert.Throws<ArgumentOutOfRangeException>("row", () => converter.ConvertFrom("1,-2"));
         }

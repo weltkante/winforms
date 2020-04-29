@@ -17,6 +17,7 @@ namespace System.Windows.Forms.Design.Tests
         [WinFormsFact]
         public void ComponentEditorComponentEditorForm_Ctor_Default()
         {
+            using var cultureScope = new EnglishCultureScope();
             using var component = new Component();
             using var control = new SubComponentEditorForm(component, Array.Empty<Type>());
             Assert.NotNull(control.AcceptButton);
@@ -172,6 +173,7 @@ namespace System.Windows.Forms.Design.Tests
         [WinFormsFact]
         public void ComponentEditorComponentEditorForm_CreateParams_GetDefault_ReturnsExpected()
         {
+            using var cultureScope = new EnglishCultureScope();
             using var component = new Component();
             using var control = new SubComponentEditorForm(component, Array.Empty<Type>());
             CreateParams createParams = control.CreateParams;

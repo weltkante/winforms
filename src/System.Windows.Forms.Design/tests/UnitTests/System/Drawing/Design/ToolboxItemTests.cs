@@ -22,6 +22,7 @@ namespace System.Drawing.Design.Tests
         [Fact]
         public void ToolboxItem_Ctor_Default()
         {
+            using var cultureScope = new EnglishCultureScope();
             var item = new ToolboxItem();
             Assert.Null(item.AssemblyName);
             Assert.Null(item.Bitmap);

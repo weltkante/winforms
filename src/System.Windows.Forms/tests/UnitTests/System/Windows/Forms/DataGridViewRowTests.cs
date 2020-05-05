@@ -1,12 +1,13 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
+using System.Threading;
 using WinForms.Common.Tests;
 using Xunit;
 
@@ -2937,91 +2938,93 @@ namespace System.Windows.Forms.Tests
         {
             var dataGridView = new DataGridView { ColumnCount = 1 };
             dataGridView.Rows.Add(new DataGridViewRow());
-            yield return new object[] { dataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { dataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { dataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { dataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, dataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, dataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, dataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, dataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var headersInvisibleDataGridView = new DataGridView { ColumnCount = 1, RowHeadersVisible = false };
             headersInvisibleDataGridView.Rows.Add(new DataGridViewRow());
 
-            yield return new object[] { headersInvisibleDataGridView.Rows[1], Rectangle.Empty, new Rectangle(1, 2, 100, 100), -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, headersInvisibleDataGridView.Rows[1], Rectangle.Empty, new Rectangle(1, 2, 100, 100), -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
 
             var frozenDataGridView = new DataGridView { ColumnCount = 1 };
             frozenDataGridView.Rows.Add(new DataGridViewRow());
             frozenDataGridView.Columns[0].Frozen = true;
             frozenDataGridView.Columns[0].Visible = true;
-            yield return new object[] { frozenDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { frozenDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, frozenDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, frozenDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, frozenDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var leftToRightDataGridView = new DataGridView { ColumnCount = 1, RightToLeft = RightToLeft.Yes };
             leftToRightDataGridView.Rows.Add(new DataGridViewRow());
             leftToRightDataGridView.Columns[0].Frozen = true;
             leftToRightDataGridView.Columns[0].Visible = true;
-            yield return new object[] { leftToRightDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { leftToRightDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, leftToRightDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, leftToRightDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, leftToRightDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var singleVerticalBorderAddedDataGridView = new DataGridView { ColumnCount = 1, RowHeadersVisible = false };
             singleVerticalBorderAddedDataGridView.Rows.Add(new DataGridViewRow());
             singleVerticalBorderAddedDataGridView.Columns[0].Frozen = true;
             singleVerticalBorderAddedDataGridView.Columns[0].Visible = true;
-            yield return new object[] { singleVerticalBorderAddedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleVerticalBorderAddedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleVerticalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var singleHorizontalBorderAddedDataGridView = new DataGridView { ColumnCount = 1, ColumnHeadersVisible = false };
             singleHorizontalBorderAddedDataGridView.Rows.Add(new DataGridViewRow());
             singleHorizontalBorderAddedDataGridView.Columns[0].Frozen = true;
             singleHorizontalBorderAddedDataGridView.Columns[0].Visible = true;
-            yield return new object[] { singleHorizontalBorderAddedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var firstDisplayedScrollingColumnIndexDataGridView = new DataGridView { ColumnCount = 1, FirstDisplayedScrollingColumnIndex = 0 };
             firstDisplayedScrollingColumnIndexDataGridView.Rows.Add(new DataGridViewRow());
             firstDisplayedScrollingColumnIndexDataGridView.FirstDisplayedScrollingColumnIndex = 0;
             firstDisplayedScrollingColumnIndexDataGridView.Columns[0].Visible = true;
-            yield return new object[] { firstDisplayedScrollingColumnIndexDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var firstDisplayedScrollingColumnIndexRightToLeftDataGridView = new DataGridView { ColumnCount = 1, FirstDisplayedScrollingColumnIndex = 0, RightToLeft = RightToLeft.Yes };
             firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows.Add(new DataGridViewRow());
             firstDisplayedScrollingColumnIndexRightToLeftDataGridView.FirstDisplayedScrollingColumnIndex = 0;
             firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Columns[0].Visible = true;
-            yield return new object[] { firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, firstDisplayedScrollingColumnIndexRightToLeftDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
 
             var singleHorizontalBorderAddedDisplayedDataGridView = new DataGridView { ColumnCount = 1, ColumnHeadersVisible = false };
             singleHorizontalBorderAddedDisplayedDataGridView.Rows.Add(new DataGridViewRow());
             singleHorizontalBorderAddedDisplayedDataGridView.FirstDisplayedScrollingColumnIndex = 0;
             singleHorizontalBorderAddedDisplayedDataGridView.Columns[0].Visible = true;
-            yield return new object[] { singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
-            yield return new object[] { singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
-            yield return new object[] { singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], Rectangle.Empty, Rectangle.Empty, -1, DataGridViewElementStates.None, true, true, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 100, 100), 0, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, false, true, DataGridViewPaintParts.None };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1000, 2000, 100, 100), new Rectangle(1, 2, 100, 100), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
+            yield return new object[] { Thread.CurrentThread.ManagedThreadId, singleHorizontalBorderAddedDisplayedDataGridView.Rows[1], new Rectangle(1, 2, 100, 100), new Rectangle(1, 2, 1000, 1000), 1, DataGridViewElementStates.Displayed | DataGridViewElementStates.Displayed, true, false, DataGridViewPaintParts.All };
         }
 
-        [WinFormsTheory(Skip = "Deadlock, see: https://github.com/dotnet/winforms/issues/3209")]
+        [WinFormsTheory]
         [MemberData(nameof(Paint_TestData))]
-        public void DataGridViewRow_Paint_Invoke_Success(DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts unused)
+        public void DataGridViewRow_Paint_Invoke_Success(int threadId, DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts unused)
         {
+            Assert.Equal(threadId, Thread.CurrentThread.ManagedThreadId);
+
             if (rowIndex == -1)
             {
                 return;
@@ -3253,10 +3256,12 @@ namespace System.Windows.Forms.Tests
             }
         }
 
-        [WinFormsTheory(Skip = "Deadlock, see: https://github.com/dotnet/winforms/issues/3209")]
+        [WinFormsTheory]
         [MemberData(nameof(Paint_TestData))]
-        public void DataGridViewRow_PaintCells_Invoke_Success(DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts paintParts)
+        public void DataGridViewRow_PaintCells_Invoke_Success(int threadId, DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts paintParts)
         {
+            Assert.Equal(threadId, Thread.CurrentThread.ManagedThreadId);
+
             using (var image = new Bitmap(10, 10))
             using (Graphics graphics = Graphics.FromImage(image))
             {
@@ -3342,10 +3347,12 @@ namespace System.Windows.Forms.Tests
             }
         }
 
-        [WinFormsTheory(Skip = "Deadlock, see: https://github.com/dotnet/winforms/issues/3209")]
+        [WinFormsTheory]
         [MemberData(nameof(Paint_TestData))]
-        public void DataGridViewRow_PaintHeader_Invoke_Success(DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts paintParts)
+        public void DataGridViewRow_PaintHeader_Invoke_Success(int threadId, DataGridViewRow row, Rectangle clipBounds, Rectangle rowBounds, int rowIndex, DataGridViewElementStates rowState, bool isFirstDisplayedRow, bool isLastVisibleRow, DataGridViewPaintParts paintParts)
         {
+            Assert.Equal(threadId, Thread.CurrentThread.ManagedThreadId);
+
             using (var image = new Bitmap(10, 10))
             using (Graphics graphics = Graphics.FromImage(image))
             {

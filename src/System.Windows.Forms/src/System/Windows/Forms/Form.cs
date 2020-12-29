@@ -123,6 +123,7 @@ namespace System.Windows.Forms
         private static readonly int PropMaxTrackSizeWidth = PropertyStore.CreateKey();
         private static readonly int PropMaxTrackSizeHeight = PropertyStore.CreateKey();
 
+        private static readonly int PropFormMdiMenu = PropertyStore.CreateKey();
         private static readonly int PropFormMdiParent = PropertyStore.CreateKey();
         private static readonly int PropActiveMdiChild = PropertyStore.CreateKey();
         private static readonly int PropFormerlyActiveMdiChild = PropertyStore.CreateKey();
@@ -1590,6 +1591,7 @@ namespace System.Windows.Forms
                         }
                     }
 
+                    InvalidateMergedMenu();
                     UpdateMenuHandles();
                 }
                 finally
@@ -2253,6 +2255,7 @@ namespace System.Windows.Forms
 
                 if (!value)
                 {
+                    InvalidateMergedMenu();
                     SetState(States.Visible, false);
                 }
                 else
@@ -3263,6 +3266,17 @@ namespace System.Windows.Forms
                     Properties.SetObject(PropActiveMdiChild, null);
                 }
 
+                if (Properties.ContainsObject(PropFormMdiMenu))
+                {
+                    var menu = Properties.GetObject(PropFormMdiMenu) as IntPtr?;
+                    if (menu.HasValue)
+                    {
+                        User32.DestroyMenu(menu.Value);
+                    }
+
+                    Properties.SetObject(PropFormMdiMenu, null);
+                }
+
                 if (MdiWindowListStrip != null)
                 {
                     MdiWindowListStrip.Dispose();
@@ -3707,6 +3721,11 @@ namespace System.Windows.Forms
             Location = p;
         }
 
+        private void InvalidateMergedMenu()
+        {
+            this.ParentForm?.MenuChanged(0, null);
+        }
+
         /// <summary>
         ///  Arranges the Multiple Document Interface
         ///  (MDI) child forms according to value.
@@ -3714,6 +3733,18 @@ namespace System.Windows.Forms
         public void LayoutMdi(MdiLayout value)
         {
             ctlClient?.LayoutMdi(value);
+        }
+
+        internal void MenuChanged(int change, object menu)
+        {
+            Form parForm = ParentForm;
+            if (parForm != null && this == parForm.ActiveMdiChildInternal)
+            {
+                parForm.MenuChanged(change, menu);
+                return;
+            }
+
+            UpdateMenuHandles();
         }
 
         /// <summary>
@@ -5507,6 +5538,19 @@ namespace System.Windows.Forms
                 // the MainMenuStrip as the place to store the system menu controls for the maximized MDI child.
 
                 MenuStrip mainMenuStrip = MainMenuStrip;
+
+                if (mainMenuStrip == null)
+                {
+                    var menu = Properties.GetObject(PropFormMdiMenu) as IntPtr?;
+                    if (!menu.HasValue)
+                    {
+                        menu = User32.CreateMenu();
+                        Properties.SetObject(PropFormMdiMenu, menu);
+                    }
+
+                    User32.SendMessageW(ctlClient, User32.WM.MDISETMENU, menu.Value);
+                }
+
                 // (New fix: Only destroy Win32 Menu if using a MenuStrip)
                 if (mainMenuStrip != null)
                 {

@@ -5092,7 +5092,22 @@ namespace System.Windows.Forms
             }
             else
             {
-                _window.DestroyHandle();
+                if (_window.InProtectedScope)
+                {
+                    // ***
+                    // Here we would need to do the magic, either in the Control class or in the NativeWindow class.
+                    // We need to "detach" the Control from its ControlNativeWindow so it doesn't receive messages
+                    // from multiple handles while the previous handle awaits its destruction. We probably also
+                    // should move the to-be-destroyed window to the parking window. The detached handle can then
+                    // live on and schedule its destruction while the Control goes on to create a new handle.
+                    // ***
+
+                    Environment.FailFast("magic needs to happen here");
+                }
+                else
+                {
+                    _window.DestroyHandle();
+                }
             }
 
             _trackMouseEvent = default;
@@ -9554,6 +9569,10 @@ namespace System.Windows.Forms
                     return;
                 }
 
+                // If we want to detect misuse early we can throw here
+                if (_window.InProtectedScope)
+                    throw new InvalidOperationException();
+
                 bool focused = ContainsFocus;
 
 #if DEBUG
@@ -9611,6 +9630,10 @@ namespace System.Windows.Forms
                             }
                         }
                     }
+
+                    // ***
+                    // Otherwise we'll have to pass through to here (it is important to park children) and change behavior of DestroyHandle
+                    // ***
 
                     // do the main work of recreating the handle
                     DestroyHandle();

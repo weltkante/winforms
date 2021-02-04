@@ -61,6 +61,7 @@ namespace System.Windows.Forms
         private bool _ownHandle;
         private NativeWindow _nextWindow;
         private readonly WeakReference _weakThisPtr;
+        private int _handleProtectionScopes;
 
         static NativeWindow()
         {
@@ -529,6 +530,8 @@ namespace System.Windows.Forms
             {
                 if (Handle != IntPtr.Zero)
                 {
+                    Debug.Assert(_handleProtectionScopes == 0);
+
                     if (User32.DestroyWindow(this).IsFalse())
                     {
                         UnSubclass();
@@ -676,6 +679,8 @@ namespace System.Windows.Forms
                 {
                     return;
                 }
+
+                Debug.Assert(_handleProtectionScopes == 0);
 
                 if (handleValid)
                 {
@@ -898,6 +903,47 @@ namespace System.Windows.Forms
         protected virtual void WndProc(ref Message m)
         {
             DefWndProc(ref m);
+        }
+
+        internal bool InProtectedScope => _handleProtectionScopes != 0;
+
+        internal void EnterProtectedScope()
+        {
+            Debug.Assert(Handle != IntPtr.Zero);
+            _handleProtectionScopes++;
+        }
+
+        internal void LeaveProtectedScope()
+        {
+            Debug.Assert(Handle != IntPtr.Zero && _handleProtectionScopes > 0);
+            _handleProtectionScopes--;
+        }
+    }
+
+    partial class Control
+    {
+        private protected struct HandleProtectionScope : IDisposable
+        {
+            private NativeWindow _window;
+
+            public HandleProtectionScope(Control control)
+            {
+                _window = control?._window;
+
+                if (_window is not null && _window.Handle != IntPtr.Zero)
+                    _window.EnterProtectedScope();
+            }
+
+            public void Dispose()
+            {
+                if (_window is null)
+                    return;
+
+                if (_window.Handle != IntPtr.Zero)
+                    _window.LeaveProtectedScope();
+
+                _window = null;
+            }
         }
     }
 }

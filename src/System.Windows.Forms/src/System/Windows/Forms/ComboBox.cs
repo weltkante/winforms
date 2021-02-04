@@ -3618,7 +3618,8 @@ namespace System.Windows.Forms
                 case CBN.DROPDOWN:
                     _currentText = Text;
                     _dropDown = true;
-                    OnDropDown(EventArgs.Empty);
+                    using (new HandleProtectionScope(this))
+                        OnDropDown(EventArgs.Empty);
                     UpdateDropDownHeight();
 
                     break;

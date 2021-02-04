@@ -23,13 +23,30 @@ namespace WinformsControlsTest
             Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
             try
             {
-                Application.Run(new MainForm());
+                Application.Run(new Form1());
             }
             catch (System.Exception)
             {
                 Environment.Exit(-1);
             }
             Environment.Exit(0);
+        }
+    }
+
+    class Form1 : Form
+    {
+        public Form1()
+        {
+            var cb = new ComboBox();
+            cb.DropDown += Cb_DropDown;
+            Controls.Add(cb);
+        }
+
+        private void Cb_DropDown(object sender, EventArgs e)
+        {
+            var cb = (ComboBox)sender;
+            cb.DropDownStyle = ComboBoxStyle.Simple;
+            cb.DropDownStyle = ComboBoxStyle.DropDown;
         }
     }
 }
